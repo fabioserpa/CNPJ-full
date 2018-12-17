@@ -6,3 +6,6 @@ Utilitário em Python para carregar a base completa de CNPJ disponibilizada pela
 
 ### Exemplo
 `python cnpj.py "data\F.K032001K.D81106D" sqlite "data"`
+
+#### TO-DO
+Em breve a documentação será aprimorada.
