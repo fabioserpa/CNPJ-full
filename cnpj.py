@@ -151,7 +151,7 @@ def cnpj_full(input_path, tipo_output, output_path):
                              '6': CNAES_COLUNAS},
                       dtype={'1': EMPRESAS_DTYPE,
                          '2': SOCIOS_DTYPE},
-                      chunksize=CHUNKSIZE, nrows=1000000)
+                      chunksize=CHUNKSIZE)
 
     for i, dado in enumerate(dados):
         print('Processando bloco {}: até linha {}.'.format(i+1,(i+1)*CHUNKSIZE), 
