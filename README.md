@@ -26,7 +26,7 @@ A princípio, não é necessário. O script neste repositório usa funções da 
 `$ python3 -m pip install numpy`
 
 ## NumExpr
-A [Pandas](https://pandas.pydata.org) usa. É uma extensão que melhora a velocidade de análise no pacote [NumPy](#pacote-numpy). Para instalar a versão mais atual da [NumExpr] (https://pypi.org/project/numexpr):
+A [Pandas](https://pandas.pydata.org) usa. É uma extensão que melhora a velocidade de análise no pacote [NumPy](#pacote-numpy). Para instalar a versão mais atual da [NumExpr](https://pypi.org/project/numexpr):
 
 `$ python3 -m pip install numexpr`
 
