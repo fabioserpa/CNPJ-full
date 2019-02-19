@@ -2,8 +2,8 @@
 Utilitário em Python para carregar a base completa de CNPJ [disponibilizada pela Receita Federal](http://idg.receita.fazenda.gov.br/orientacao/tributaria/cadastros/cadastro-nacional-de-pessoas-juridicas-cnpj/dados-publicos-cnpj) (aprox. 85 GB!) e transformá-la em arquivos csv ou sqlite para fácil consumo. Processa dados de empresas, sócios e CNAEs.
 
 
-# Configurações prévias
-Para executar o script, é necessária que seu sistema contenha essas instalações:
+# Configurações prévias/
+Para executar o script, é necessário que seu sistema contenha essas instalações:
 
 ## Python
 Versão mais atual, caso não consiga executar usando somente o comando `python`. Para isso, execute no terminal (se estiver usando sistemas GNU/Linux derivados do Debian):
@@ -32,14 +32,16 @@ A [Pandas](https://pandas.pydata.org) usa. É uma extensão que melhora a veloci
 
 
 # Antes de executar
-Saiba que essa base de dados da RF é imensa!
-Para executar esse script, é bastante provável que sua máquina (a não ser que seja um supercomputador) dedique bastante tempo a essa execução.
-Pode variar de 2 a 4 horas.
-Esse script informa no terminal o parcial do processamento, mostrando o "bloco" (conjunto parcial) de linhas que está sendo convertido. Cada bloco representam 100.000 linhas (registros) na base de dados.
-Ao todo, são 724 blocos processados, o que quer dizer que a base de dados da RF, na versão publicada em 23/11/2018 e atualizada em 07/12/2018 (datas conforme dados do site da RF), tem entre 72.400.000 e 72.500.000 linhas!
-Esse não é o total de CNPJs cadastrado, pois além dos CNPJs o arquivo também contém os CNAES secundários de cada CNPJ (cada CNPJ pode ter mais de um CNAE secundário), bem como os sócios (são geradas essas 3 tabelas convertidas para formato CSV ao final).
-Em suma, prepare seu computador (e seu tempo) para esperar esse algoritmo ser executado.
-Feche tudo que estiver fazendo e deixe-o processando apenas esse script.
+Tenha em mente que essa base de dados da RF é imensa!
+Para executar esse script, é bastante provável que sua máquina (a não ser que seja um supercomputador) dedique bastante tempo a essa execução, podendo variar de 1 a 4 horas.
+
+O script informa no terminal o parcial do processamento, mostrando o "bloco" (conjunto parcial) de linhas que está sendo convertido. Cada bloco contempla 100.000 linhas (registros) da base de dados.
+Ao todo, são 724 blocos processados, o que quer dizer que a base de dados da RF, na versão publicada em 23/11/2018, tem entre 72.400.000 e 72.500.000 linhas!
+
+Esse não é o total de CNPJs cadastrado, pois além dos CNPJs o arquivo também contempla os CNAES secundários de cada CNPJ (cada CNPJ pode ter mais de um CNAE secundário), bem como os sócios.
+
+Em suma, prepare seu computador (e seu tempo) para esperar o script ser executado.
+Se possível, feche tudo que estiver fazendo e deixe-o processando apenas esse script.
 Se estiver no GNU/Linux, é interessante realizar logout na interface gráfica e utilizar algumas das telas do tty (acesso usando `control` + `alt` + `F1 ou outro até F6`.
 
 ## Tamanho das tabelas geradas
