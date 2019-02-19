@@ -42,7 +42,7 @@ Esse não é o total de CNPJs cadastrado, pois além dos CNPJs o arquivo também
 
 Em suma, prepare seu computador (e seu tempo) para esperar o script ser executado.
 Se possível, feche tudo que estiver fazendo e deixe-o processando apenas esse script.
-Se estiver no GNU/Linux, é interessante realizar logout na interface gráfica e utilizar algumas das telas do tty (acesso usando `control` + `alt` + `F1 ou outro até F6`.
+Se estiver no GNU/Linux, é interessante realizar logout na interface gráfica e utilizar algumas das telas do tty (acesso usando `control` + `alt` + `F1 ou outro até F6`).
 
 ## Tamanho das tabelas geradas
 Tabela | Tamanho do arquivo | Quantidade de linhas
