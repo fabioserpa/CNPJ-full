@@ -65,3 +65,26 @@ ou, no python3:
 ou, no python3:
 
 `python3 cnpj.py "data\F.K032001K.D81106D" sqlite "data"`
+
+
+## Separando arquivos CSV por estado ou municipio
+
+Após ter gerado o arquivo empresas.csv, é possível dividir por estado, ou por cidade
+
+###Requisitos
+
+`$ python3 -m pip install python-dotenv`
+
+Para ambos os scripts é necessário informar a localização do arquivo `empresas.csv` no arquivo `.env`
+
+`FILES_LOCATION=/media/Arquivos`
+
+Após isso basta executar os scripts:
+
+####Para separar por UF:
+
+`python3 separar_csv_por_uf.py`
+
+####Para separar por cidade:
+
+`python3 separar_csv_por_cidade.py`
