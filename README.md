@@ -44,12 +44,12 @@ Em suma, prepare seu computador (e seu tempo) para esperar o script ser executad
 Se possível, feche tudo que estiver fazendo e deixe-o processando apenas esse script.
 Se estiver no GNU/Linux, é interessante realizar logout na interface gráfica e utilizar algumas das telas do tty (acesso usando `control` + `alt` + `F1 ou outro até F6`).
 
-## Tamanho das tabelas geradas
+## Tamanho das tabelas geradas (versão publicada em 23/11/2018)
 Tabela | Tamanho do arquivo | Quantidade de linhas
 ------ | ------------------ | --------------------
-Empresas | Aprox. 12gb | 49.238.928
-CNAES secundárias | 1,18gb | 43.680.906
-Sócios | 1,71gb | 18.398.543
+Empresas | Aprox. 12gb | 39.238.927
+CNAES secundárias | 1,18gb | 43.680.905
+Sócios | 1,71gb | 18.398.542
 
 
 # Como executar
