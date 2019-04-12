@@ -1,5 +1,5 @@
 # Dados Públicos CNPJ - Conversão para CSV ou SQLITE
-Utilitário em Python para carregar a base completa de CNPJ [disponibilizada pela Receita Federal](http://idg.receita.fazenda.gov.br/orientacao/tributaria/cadastros/cadastro-nacional-de-pessoas-juridicas-cnpj/dados-publicos-cnpj) (aprox. 85 GB!) e transformá-la em arquivos csv ou sqlite para fácil consumo. Processa dados de empresas, sócios e CNAEs.
+Utilitário em Python para carregar a base completa de CNPJ [disponibilizada pela Receita Federal](http://idg.receita.fazenda.gov.br/orientacao/tributaria/cadastros/cadastro-nacional-de-pessoas-juridicas-cnpj/dados-publicos-cnpj) (aprox. 85 GB) e transformá-la em arquivos csv ou sqlite para fácil consumo. Processa dados de empresas, sócios e CNAEs.
 
 
 # Configurações prévias
@@ -15,41 +15,37 @@ A versão mais atual. Se estiver usando Python3:
 
 `$ python3 -m pip install --upgrade pip`
 
-## Biblioteca de Data Science "Pandas"
+## Pandas (pacote de análise de dados)
 A versão mais atual da biblioteca [Pandas](https://pandas.pydata.org) para Python. Para instalar via Pip:
 
 `$ python3 -m pip install pandas`
 
-## Pacote NumPy
+#### NumPy
 A princípio, não é necessário. O script neste repositório usa funções da biblioteca [Pandas](https://pandas.pydata.org), que utiliza uma extensão de NumPy chamada [NumExpr](#numexpr). Então, **caso** seu terminal retorne erros por ausência do pacote [NumPy](https://pypi.org/project/numpy/), esse é o motivo. Para instalá-lo (se precisar):
 
 `$ python3 -m pip install numpy`
 
-## NumExpr
-A [Pandas](https://pandas.pydata.org) usa. É uma extensão que melhora a velocidade de análise no pacote [NumPy](#pacote-numpy). Para instalar a versão mais atual da [NumExpr](https://pypi.org/project/numexpr):
+#### NumExpr
+O [Pandas](https://pandas.pydata.org) usa. É uma extensão que melhora a velocidade de análise no pacote [NumPy](#pacote-numpy). Para instalar a versão mais atual da [NumExpr](https://pypi.org/project/numexpr):
 
 `$ python3 -m pip install numexpr`
 
 
 # Antes de executar
-Tenha em mente que essa base de dados da RF é imensa!
-Para executar esse script, é bastante provável que sua máquina (a não ser que seja um supercomputador) dedique bastante tempo a essa execução, podendo variar de 1 a 4 horas.
+Atente para o fato de que o arquivo de dados disponibilizado pela RF é muito grande. São aprox. 85 GB de arquivo texto descomprimido.
+Portanto, é bastante provável que seu computador dedique tempo considerável a essa execução, algo em torno de 2 ou 3 horas.
 
 O script informa no terminal o parcial do processamento, mostrando o "bloco" (conjunto parcial) de linhas que está sendo convertido. Cada bloco contempla 100.000 linhas (registros) da base de dados.
-Ao todo, são 724 blocos processados, o que quer dizer que a base de dados da RF, na versão publicada em 23/11/2018, tem entre 72.400.000 e 72.500.000 linhas!
 
-Esse não é o total de CNPJs cadastrado, pois além dos CNPJs o arquivo também contempla os CNAES secundários de cada CNPJ (cada CNPJ pode ter mais de um CNAE secundário), bem como os sócios.
 
-Em suma, prepare seu computador (e seu tempo) para esperar o script ser executado.
-Se possível, feche tudo que estiver fazendo e deixe-o processando apenas esse script.
-Se estiver no GNU/Linux, é interessante realizar logout na interface gráfica e utilizar algumas das telas do tty (acesso usando `control` + `alt` + `F1 ou outro até F6`).
-
-## Tamanho das tabelas geradas (versão publicada em 23/11/2018)
+## Tamanho das tabelas geradas (versão atualizada em 26/03/2019)
 Tabela | Tamanho do arquivo | Quantidade de linhas
 ------ | ------------------ | --------------------
-Empresas | Aprox. 12gb | 39.238.927
-CNAES secundárias | 1,18gb | 43.680.905
-Sócios | 1,71gb | 18.398.542
+Empresas | Aprox. 12gb | 40.184.161
+CNAES secundárias | 1,18gb | 45.321.058 <sup>*</sup>
+Sócios | 1,71gb | 18.613.392
+
+<sup>*</sup> Observar que esta quantidade de linhas não corresponde ao número de linhas referentes a CNAEs secundários no arquivo original, uma vez que no original todos os CNAEs secundários de uma determinada empresa estão na mesma linha, enquanto na versão convertida é gerada uma linha para cada CNAE secundário associado à empresa.
 
 
 # Como executar
@@ -60,8 +56,8 @@ ou, no python3:
 `python3 cnpj.py <arquivo original> <tipo de saída:csv ou sqlite> <pasta saída>`
 
 ## Exemplo
-`python cnpj.py "data\F.K032001K.D81106D" sqlite "data"`
+`python cnpj.py "data\F.K032001K.D90308" sqlite "data"`
 
 ou, no python3:
 
-`python3 cnpj.py "data\F.K032001K.D81106D" sqlite "data"`
+`python3 cnpj.py "data\F.K032001K.D90308" sqlite "data"`
