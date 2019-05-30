@@ -73,46 +73,46 @@ Para executar o script de consulta, é necessário que seu sistema contenha as i
 
 #### Networkx 2.x (pacote de criação, manipulação e análise de grafos/redes)
 
-É **IMPRESCINDÍVEL** que índices sejam criados nos campos `cnpj` das tabelas `empresas` e `socios`, e nos campos `nome_socio` e `cnpj_cpf_socio` da tabela `socios`. Do contrário, as consultas se tornam insuportavelmente lentas ou até mesmo inviáveis dependendo da profundidade.
+É **IMPRESCINDÍVEL** que índices sejam criados nos campos `cnpj` das tabelas `empresas` e `socios`, e nos campos `nome_socio` e `cnpj_cpf_socio` da tabela `socios`. Do contrário, as consultas se tornam insuportavelmente lentas ou até mesmo inviáveis dependendo da profundidade. O script de carga (cnpj.py) foi atualizado para opcionalmente gerar os índices mais importantes automaticamente ao final da carga.
 
-## Instruções (a serem melhor detalhadas em breve):
+## Instruções Básicas:
 
-Uso: `python consulta.py <tipo consulta> <item|arquivo input> <caminho output> [--base <arquivo sqlite>] [--nivel <int>] [--csv] [--graphml] [--gexf] [--viz]`
+Uso: `python consulta.py <tipo consulta> <item|arquivo input> <caminho output> [--base <arquivo sqlite>]`
+`[--nivel <int>] [--csv] [--graphml] [--gexf] [--viz]`
 
-#### Argumentos obrigatorios:
+#### Argumentos obrigatórios:
 
 `<tipo consulta>`: Especifica o tipo de item a ser procurado. Opções:
-* **cnpj:** Busca empresa pelo numero do CNPJ
+* **cnpj:** Busca empresa pelo número do CNPJ.
 
-* **nome_socio:** Busca socios pelo nome completo
+* **nome_socio:** Busca sócios pelo nome completo.
 
-* **cpf:** Busca socios pelo numero do CPF 
-      Pode trazer varios socios, ja que apenas seis digitos sao armazenados.
+* **cpf:** Busca sócios pelo número do CPF.
+      (Pode trazer vários sócios, uma vez que apenas seis dígitos são fornecidos pela RF)
       
-* **cpf_nome:** Busca socios pelo numero do CPF seguido (sem espaco) do nome
+* **cpf_nome:** Busca sócios pelo número do CPF seguido (sem espaço) do nome completo.
 
 * **file:** Arquivo que contem mais de um item a ser buscado.
-        Caso o arquivo tenha apenas um dado por linha, dado lido como CNPJ.
+        Caso o arquivo tenha apenas um dado por linha, será tratado como número de CNPJ.
         Caso o arquivo tenha mais de um dado separado por `;`, o primeiro
         indica um dos tipos acima, e o segundo o item a ser buscado.
         (outro separador pode ser definido em `SEP_CSV` no `config.py`) 
 
 `<item|arquivo input>`: Item a ser procurado, de acordo com `<tipo consulta>`.
   
-`<caminho output>`: Pasta onde serao salvos os arquivos gerados.
+`<caminho output>`: Pasta onde serão salvos os arquivos gerados.
 
 #### Argumentos opcionais:
 
 `--base`: Especifica o arquivo do banco de dados de CNPJ em formato sqlite.
-           Caso nao seja especificado, usa o PATH_BD definido no `config.py`
+           Caso não seja especificado, usa o `PATH_BD` definido no `config.py`
 
-`--nivel`: Especifica a profundidade da consulta em número de pulos.
-            Ex: Caso seja especificado --nivel 1, busca o item e as
-            as empresas ou pessoas diretamente relacionadas.
-            Csaso nao seja especificado, usa o `NIVEL_MAX_DEFAULT` no `config.py`
+`--nivel`: Especifica a profundidade da consulta em número de "pulos".
+            Exemplo: Caso seja especificado `--nivel 1`, busca o item e as empresas ou pessoas diretamente relacionadas.
+            Caso não seja especificado, usa o `NIVEL_MAX_DEFAULT` no `config.py`
 
 `--csv`: Para gerar o resultado em arquivos csv.
-          Sao gerados dois arquivos, `pessoas.csv` e `vinculos.csv`.
+          São gerados dois arquivos, `pessoas.csv` e `vinculos.csv`.
 
 `--graphml`: Para gerar o resultado em grafo no formato GRAPHML.
 
@@ -121,8 +121,8 @@ Uso: `python consulta.py <tipo consulta> <item|arquivo input> <caminho output> [
 
  `--viz`: Para gerar um HTML interativo com o resultado em grafo.
           Para abrir automaticamente o navegador, informar o `PATH_NAVEGADOR` 
-          no `config.py`. Do contrario, basta abrir o arquivo grafo.html gerado 
-          em <caminho output>.
+          no `config.py`. Do contrário, basta abrir o arquivo `grafo.html` gerado 
+          em `<caminho output>` com o navegador de preferência.
 
 #### Exemplos:
 
