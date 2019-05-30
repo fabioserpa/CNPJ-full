@@ -135,3 +135,8 @@ Uso: `python consulta.py <tipo consulta> <item|arquivo input> <caminho output> [
 #### Atenção:
 
 Especifique o nível de profundidade da rede com moderação, uma vez que, dependendo das empresas ou pessoas buscadas, a quantidade de relacionados pode crescer exponencialmente, atingindo facilmente centenas ou milhares de registros, o que resulta na execução intensiva de queries no BD. Nível 3 é um bom parâmetro.
+
+## TO DO
+
+* Aprimorar a documentação do código e as instruções neste README.
+* Aprimorar a visualização interativa em grafo para incluir atributos das empresas.
