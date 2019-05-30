@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 import os
 import sys
 import csv
@@ -131,6 +132,18 @@ SOCIOS_DTYPE = {'perc_capital':float}
 CNAES_COLUNAS = ['cnpj'] + [num for num in range(99)]
 CNAES_COLSPECS = [(3,17)] + [(num*7+17,num*7+24) for num in range(99)]
 
+# (<nome_do_indice>,<tabela>,<coluna>)
+INDICES = [
+    ('empresas_cnpj', REGISTROS_TIPOS['1'], EMPRESAS_COLUNAS[0]),
+    ('empresas_raiz', REGISTROS_TIPOS['1'], 'substr({},0,9)'.format(EMPRESAS_COLUNAS[0])),
+    ('socios_cnpj', REGISTROS_TIPOS['2'], SOCIOS_COLUNAS[0]),
+    ('socios_cpf_cnpj', REGISTROS_TIPOS['2'], SOCIOS_COLUNAS[3]),
+    ('socios_nome', REGISTROS_TIPOS['2'], SOCIOS_COLUNAS[2]),
+    ('cnaes_cnpj', REGISTROS_TIPOS['6'], CNAES_COLUNAS[0])
+]
+
+PREFIXO_INDICE = 'ix_'
+
 CHUNKSIZE=100000
 
 NOME_ARQUIVO_SQLITE = 'CNPJ_full.db'
@@ -154,8 +167,7 @@ def cnpj_full(input_path, tipo_output, output_path):
                       chunksize=CHUNKSIZE)
 
     for i, dado in enumerate(dados):
-        print('Processando bloco {}: até linha {}.'.format(i+1,(i+1)*CHUNKSIZE), 
-              end='\r')
+        print('Processando bloco {}: até linha {}.'.format(i+1,(i+1)*CHUNKSIZE), end='\r')
 
         for tipo_registro, df in dado.items():
 
@@ -215,7 +227,6 @@ def cnpj_full(input_path, tipo_output, output_path):
                           if_exists=replace_append, 
                           index=False)
 
-    print('\nProcessamento concluído!')
     if tipo_output == 'csv':
         print(u'''
             Arquivos CSV gerados na pasta {}. 
@@ -228,15 +239,42 @@ def cnpj_full(input_path, tipo_output, output_path):
             OBS: Uso de índices altamente recomendado!
             '''.format(os.path.join(output_path,NOME_ARQUIVO_SQLITE)))
 
+def cnpj_index(output_path):
+    import sqlite3    
+
+    conBD = sqlite3.connect(os.path.join(output_path,NOME_ARQUIVO_SQLITE))
+
+    print(u'''
+        Criando índices...
+        Essa operaçao pode levar vários minutos.
+    ''')
+
+    cursorBD = conBD.cursor()
+
+    for indice in INDICES:
+        nome_indice = PREFIXO_INDICE + indice[0]
+
+        sql_stmt = 'CREATE INDEX {} ON {} ({});'.format(nome_indice, indice[1], indice[2])
+        cursorBD.execute(sql_stmt)
+
+        print(u'Index {} criado.'.format(nome_indice))
+
+    print(u'''
+        Indices criados com sucesso.
+    ''')
+
+    conBD.close()
+
 def help():
     print('''
-        Uso: python cnpj.py <arquivo_input> <output:csv/sqlite> <path_output>
-        Exemplo: python cnpj.py data/F.K032001K.D81106D sqlite data/CNPJ.db
+        Uso: python cnpj.py <arquivo_input> <output:csv|sqlite> <path_output> [--index]
+        Exemplo: python cnpj.py "data/F.K032001K.D81106D" sqlite "data" --index
     ''')
 
 def main():
-    # python cnpj.py <arquivo_input> <output:csv/sqlite> <arquivo_output>
-    if len(sys.argv) != 4:
+    # python cnpj.py <arquivo_input> <output:csv|sqlite> <arquivo_output> [--index]
+    num_argv = len(sys.argv)
+    if num_argv < 4:
         help()
         sys.exit(-1)
     else:
@@ -253,6 +291,14 @@ def main():
             help()
         else:
             cnpj_full(input_path, tipo_output, output_path)
+
+            # Possui argumento opcional
+            if num_argv > 4:
+                for opcional in sys.argv[4:num_argv]:
+                    if (opcional == '--index') and (tipo_output == 'sqlite'):
+                        cnpj_index(output_path)
+
+            print('\nProcessamento concluído!')
 
 if __name__ == "__main__":
     main()
