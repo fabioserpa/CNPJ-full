@@ -1,8 +1,10 @@
-# Dados Públicos CNPJ - Conversão para CSV ou SQLITE
+# Dados Públicos CNPJ - Conversão para CSV/SQLITE e Consultas
 Utilitário em Python para carregar a base completa de CNPJ [disponibilizada pela Receita Federal](http://idg.receita.fazenda.gov.br/orientacao/tributaria/cadastros/cadastro-nacional-de-pessoas-juridicas-cnpj/dados-publicos-cnpj) (aprox. 85 GB) e transformá-la em arquivos csv ou sqlite para fácil consumo. Processa dados de empresas, sócios e CNAEs.
+Possibilita também fazer consultas de empresas ou sócios e grafar resultados em CSV ou em grafo de relacionamentos.
 
+# Conversão para CSV ou SQLITE
 
-# Configurações prévias
+## Configurações prévias
 Para executar o script, é necessário que seu sistema contenha essas instalações:
 
 ## Python
@@ -49,15 +51,22 @@ Sócios | 1,71gb | 18.613.392
 
 
 # Como executar
-`python cnpj.py <arquivo original> <tipo de saída:csv ou sqlite> <pasta saída>`
+`python cnpj.py <arquivo original> <tipo de saída:csv ou sqlite> <pasta saída> [--index]`
 
 ou, no python3:
 
-`python3 cnpj.py <arquivo original> <tipo de saída:csv ou sqlite> <pasta saída>`
+`python3 cnpj.py <arquivo original> <tipo de saída:csv ou sqlite> <pasta saída> [--index]`
+
+O argumento opcional `--index`, aplicável somente para saída sqlite, indica que ao final da carga devem ser gerados índices automaticamente.
+A criação de índices é muito recomendada e essencial para a funcionalidade de consultas.
 
 ## Exemplo
-`python cnpj.py "data\F.K032001K.D90308" sqlite "data"`
+`python cnpj.py "data\F.K032001K.D90308" sqlite "data" --index`
 
 ou, no python3:
 
-`python3 cnpj.py "data\F.K032001K.D90308" sqlite "data"`
+`python3 cnpj.py "data\F.K032001K.D90308" sqlite "data" --index`
+
+# Consultas
+
+TO DO
