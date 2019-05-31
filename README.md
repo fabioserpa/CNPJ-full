@@ -2,6 +2,8 @@
 Utilitário em Python para carregar a base completa de CNPJ [disponibilizada pela Receita Federal](http://idg.receita.fazenda.gov.br/orientacao/tributaria/cadastros/cadastro-nacional-de-pessoas-juridicas-cnpj/dados-publicos-cnpj) (aprox. 85 GB) e transformá-la em arquivos csv ou sqlite para fácil consumo. Processa dados de empresas, sócios e CNAEs.
 Possibilita também fazer consultas de empresas ou sócios e gravar resultados em CSV ou em grafo de relacionamentos.
 
+![Grafo](img/grafo.png?raw=true "Grafo")
+
 # Conversão para CSV ou SQLITE
 
 ## Configurações prévias
@@ -136,7 +138,27 @@ Uso: `python consulta.py <tipo consulta> <item|arquivo input> <caminho output> [
 
 Especifique o nível de profundidade da rede com moderação, uma vez que, dependendo das empresas ou pessoas buscadas, a quantidade de relacionados pode crescer exponencialmente, atingindo facilmente centenas ou milhares de registros, o que resulta na execução intensiva de queries no BD. Nível 3 é um bom parâmetro.
 
+#### Configuração
+
+No `config.py`, as seguintes configurações são definidas:
+
+`PATH_BD`: Caminho para o arquivo de banco de dados da Receita Federal convertido em sqlite. 
+Pode ser sobrescrito em tempo de execução usando o argumento `--base`.
+
+`NIVEL_MAX_DEFAULT`: Nível máximo default para a profundidade das buscas.
+Pode ser sobrescrito em tempo de execução usando o argumento `--nivel <num>`
+
+`PATH_NAVEGADOR`: Caminho completo para o executável do navegador preferido se desejar que a visualização seja automaticamente apresentada ao final da execução da consulta (se argumento `--viz` for utilizado). Caso vazio, apenas gera o html na pasta de saída.
+
+`SEP_CSV`: Especifica o separador a ser considerado tanto para os arquivos csv de saída (caso seja utilizado o argumento `--csv`), quanto para o arquivo de entrada no caso do uso de `file` como `<tipo consulta>`.
+
+`COLUNAS_CSV`: Especifica a lista de colunas a serem incluídas no arquivo `pessoas.csv` quando usado o argumento `--csv`.
+
+`QUALIFICACOES`: Especifica a lista de qualificações de sócios a serem consideradas na busca dos relacionamentos. Caso `TODAS`, qualquer relação de sociedade listada no BD é considerada.
+
+`
 ## TO DO
 
 * Aprimorar a documentação do código e as instruções neste README.
-* Aprimorar a visualização interativa em grafo para incluir atributos das empresas.
+
+* Aprimorar a visualização interativa em grafo para incluir informações cadastrais das empresas no **mouse over**, possibilitar ligar/desligar rótulos de "nós" e vínculos, entre outras.
