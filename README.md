@@ -70,6 +70,8 @@ ou, no python3:
 
 **Novidade!** Agora é possível fazer consultas que além de trazer empresas e sócios específicos, traz a rede de relacionamentos na profundidade desejada. Os resultados podem ser salvos em formato tabular e/ou em formatos variados de grafos de relacionamento, que podem ser visualizados de forma interativa no navegador ou abertos em softwares que suportem os formatos especificados, como o [Gephi](https://gephi.org/).
 
+Essa funcionalidade é exclusiva para a base sqlite gerada usando o `cnpj.py`. No entanto, pode ser relativamente simples adaptar o código para funcionar com outros SGBDs ou arquivos sqlite gerados usando outra nomenclatura.
+
 ## Configurações prévias
 Para executar o script de consulta, é necessário que seu sistema contenha as instalações especificadas acima e, além disso, é necessário:
 
