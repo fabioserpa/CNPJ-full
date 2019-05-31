@@ -68,6 +68,10 @@
             .enter()
             .append("line")
             .attr("class", "link")
+            .attr("stroke-dasharray", function (d,i) {
+                if (d.tipo == 'filial') {return '5,5';}
+                else {return '0';}
+            })
             .attr('marker-end','url(#arrowhead)')
 
 //        link.append("title")

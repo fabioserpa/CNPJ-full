@@ -305,3 +305,24 @@ class RedeCNPJ:
                                                 cod_qualificacao=cod_qualificacao, 
                                                 data_entrada=data_entrada)
                 
+                # Se for filial, busca matriz
+                if (tipo_pessoa == 1) and (self.G.nodes[id_pessoa_str]['matriz_filial'] == '2'):
+                    sql = '''
+                        SELECT 
+                            cnpj, razao_social 
+                        FROM 
+                            empresas
+                        WHERE 
+                            substr(cnpj, 0, 9) = '{0}'
+                        and matriz_filial = 1
+                    '''.format(id_pessoa[:8])
+
+                    try: 
+                        matriz = pd.read_sql_query(sql, self.__conBD).iloc[0,:]
+                        cnpj_matriz = matriz['cnpj']
+
+                        self._vinculos(tipo_pessoa=1, id_pessoa=cnpj_matriz, nivel=nivel, origem=id_pessoa)
+
+                        self.G.add_edge(id_pessoa_str, cnpj_matriz, tipo='filial')
+                    except:
+                        print('Matriz nao encontrada associada a filial: {}'.format(id_pessoa_str))
