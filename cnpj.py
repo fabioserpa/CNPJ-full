@@ -1,6 +1,8 @@
+# -*- encoding: utf-8 -*-
 import os
 import sys
 import csv
+import datetime
 
 import pandas as pd
 
@@ -94,7 +96,7 @@ EMPRESAS_COLSPECS = [
     (948,956)
 ]
 
-EMPRESAS_DTYPE = {'capital_social':float}
+EMPRESAS_DTYPE = {} # 'capital_social':float}
 
 SOCIOS_COLUNAS = [
     'cnpj',
@@ -126,16 +128,60 @@ SOCIOS_COLSPECS = [
     (341,343)
 ]
 
-SOCIOS_DTYPE = {'perc_capital':float}
+SOCIOS_DTYPE = {} # 'perc_capital':float}
 
 CNAES_COLUNAS = ['cnpj'] + [num for num in range(99)]
 CNAES_COLSPECS = [(3,17)] + [(num*7+17,num*7+24) for num in range(99)]
 
-CHUNKSIZE=100000
+HEADER_COLUNAS = [
+    'Nome do arquivo',
+    'Data de gravacao',
+    'Numero da remessa'
+]
+
+HEADER_COLSPECS = [
+    (17,28),
+    (28,36),
+    (36,44)
+]
+
+TRAILLER_COLUNAS = [
+    'Total de registros de empresas',
+    'Total de registros de socios',
+    'Total de registros de CNAEs secundarios',
+    'Total de registros incluindo header e trailler'
+]
+
+TRAILLER_COLSPECS = [
+    (17,26),
+    (26,35),
+    (35,44),
+    (44,55)
+]
+
+# (<nome_do_indice>,<tabela>,<coluna>)
+INDICES = [
+    ('empresas_cnpj', REGISTROS_TIPOS['1'], EMPRESAS_COLUNAS[0]),
+    ('empresas_raiz', REGISTROS_TIPOS['1'], 'substr({},0,9)'.format(EMPRESAS_COLUNAS[0])),
+    ('socios_cnpj', REGISTROS_TIPOS['2'], SOCIOS_COLUNAS[0]),
+    ('socios_cpf_cnpj', REGISTROS_TIPOS['2'], SOCIOS_COLUNAS[3]),
+    ('socios_nome', REGISTROS_TIPOS['2'], SOCIOS_COLUNAS[2]),
+    ('cnaes_cnpj', REGISTROS_TIPOS['6'], CNAES_COLUNAS[0])
+]
+
+PREFIXO_INDICE = 'ix_'
+
+CHUNKSIZE=200000
 
 NOME_ARQUIVO_SQLITE = 'CNPJ_full.db'
 
 def cnpj_full(input_path, tipo_output, output_path):
+    total_empresas = 0
+    controle_empresas = 0
+    total_socios = 0
+    controle_socios = 0
+    total_cnaes = 0
+    controle_cnaes = 0
 
     if tipo_output == 'sqlite':
         import sqlite3
@@ -143,23 +189,28 @@ def cnpj_full(input_path, tipo_output, output_path):
 
     dados = read_cfwf(input_path, 
                       type_width=1, 
-                      colspecs= {'1':EMPRESAS_COLSPECS,
+                      colspecs= {'0':HEADER_COLSPECS,
+                                 '1':EMPRESAS_COLSPECS,
                                  '2':SOCIOS_COLSPECS,
-                                 '6':CNAES_COLSPECS},
-                      names={'1': EMPRESAS_COLUNAS, 
-                             '2': SOCIOS_COLUNAS,
-                             '6': CNAES_COLUNAS},
+                                 '6':CNAES_COLSPECS,
+                                 '9':TRAILLER_COLSPECS},
+                      names={'0':HEADER_COLUNAS,
+                             '1':EMPRESAS_COLUNAS, 
+                             '2':SOCIOS_COLUNAS,
+                             '6':CNAES_COLUNAS,
+                             '9':TRAILLER_COLUNAS},
                       dtype={'1': EMPRESAS_DTYPE,
-                         '2': SOCIOS_DTYPE},
+                             '2': SOCIOS_DTYPE},
                       chunksize=CHUNKSIZE)
 
     for i, dado in enumerate(dados):
-        print('Processando bloco {}: até linha {}.'.format(i+1,(i+1)*CHUNKSIZE), 
-              end='\r')
+        print('Processando bloco {}: até linha {}.'.format(i+1,(i+1)*CHUNKSIZE), end='\r')
 
         for tipo_registro, df in dado.items():
 
             if tipo_registro == '1': # empresas
+                total_empresas += len(df)
+
                 # Troca datas zeradas por vazio
                 df['data_opc_simples'] = (df['data_opc_simples']
                         .where(df['data_opc_simples'] != '00000000',''))
@@ -169,6 +220,8 @@ def cnpj_full(input_path, tipo_output, output_path):
                         .where(df['data_sit_especial'] != '00000000',''))
 
             elif tipo_registro == '2': # socios
+                total_socios += len(df)
+
                 # Troca cpf invalido por vazio
                 df['cpf_repres'] = (df['cpf_repres']
                         .where(df['cpf_repres'] != '***000000**',''))
@@ -182,6 +235,8 @@ def cnpj_full(input_path, tipo_output, output_path):
                                df['cnpj_cpf_socio'].str[-11:]))
 
             elif tipo_registro == '6': # cnaes_secundarios       
+                total_cnaes += len(df)
+
                 # Verticaliza tabela de associacao de cnaes secundarios,
                 # mantendo apenas os validos (diferentes de 0000000)
                 df = pd.melt(df, 
@@ -191,6 +246,35 @@ def cnpj_full(input_path, tipo_output, output_path):
                              value_name='cnae')
 
                 df = df[df['cnae'] != '0000000']
+
+            elif tipo_registro == '0': # header
+                print('\nINFORMACOES DO HEADER:')
+
+                header = df.iloc[0,:]
+
+                for k, v in header.items():
+                    print('{}: {}'.format(k, v))
+
+                # Para evitar que tente armazenar dados de header
+                continue
+
+            elif tipo_registro == '9': # trailler
+                print('\nINFORMACOES DE CONTROLE:')
+
+                trailler = df.iloc[0,:]
+
+                controle_empresas = int(trailler['Total de registros de empresas'])
+                controle_socios = int(trailler['Total de registros de socios'])
+                controle_cnaes = int(trailler['Total de registros de CNAEs secundarios'])
+
+                print('Total de registros de empresas: {}'.format(controle_empresas))
+                print('Total de registros de socios: {}'.format(controle_socios))
+                print('Total de registros de CNAEs secundarios: {}'.format(controle_cnaes))
+                print('Total de registros incluindo header e trailler: {}'.format(
+                        int(trailler['Total de registros incluindo header e trailler'])))
+
+                # Para evitar que tente armazenar dados de trailler
+                continue
 
             if tipo_output == 'csv':
                 if i > 0:
@@ -215,28 +299,85 @@ def cnpj_full(input_path, tipo_output, output_path):
                           if_exists=replace_append, 
                           index=False)
 
-    print('\nProcessamento concluído!')
+    if tipo_output == 'sqlite':
+        conBD.close()
+
+    # Imprime totais
+    print('\nConversao concluída. Validando quantidades:')
+
+    inconsistente = False
+
+    print('Total de registros de empresas: {}'.format(total_empresas), end=' ')
+    if total_empresas == controle_empresas:
+        print('ok')
+    else:
+        print('!INCONSISTENTE!')
+        inconsistente = True
+
+    print('Total de registros de socios: {}'.format(total_socios), end=' ')
+    if total_socios == controle_socios:
+        print('ok')
+    else:
+        print('!INCONSISTENTE!')
+        inconsistente = True
+
+    print('Total de registros de CNAEs: {}'.format(total_cnaes), end=' ')
+    if total_cnaes == controle_cnaes:
+        print('ok')
+    else:
+        print('!INCONSISTENTE!')
+        inconsistente = True
+
+
+    if inconsistente:
+        print(u'Atenção! Foi detectada inconsistência entre as quantidades lidas e as informações de controle do arquivo.')
+
     if tipo_output == 'csv':
-        print(u'''
-            Arquivos CSV gerados na pasta {}. 
-            '''.format(output_path))
+        print(u'Arquivos CSV gerados na pasta {}.'.format(output_path))
 
     elif tipo_output == 'sqlite':
-        conBD.close()
         print(u'''
-            Arquivo SQLITE gerado: {}
-            OBS: Uso de índices altamente recomendado!
-            '''.format(os.path.join(output_path,NOME_ARQUIVO_SQLITE)))
+Arquivo SQLITE gerado: {}
+OBS: Uso de índices altamente recomendado!
+              '''.format(os.path.join(output_path,NOME_ARQUIVO_SQLITE)))
+
+
+def cnpj_index(output_path):
+    import sqlite3    
+
+    conBD = sqlite3.connect(os.path.join(output_path,NOME_ARQUIVO_SQLITE))
+
+    print(u'''
+Criando índices...
+Essa operaçao pode levar vários minutos.
+    ''')
+
+    cursorBD = conBD.cursor()
+
+    for indice in INDICES:
+        nome_indice = PREFIXO_INDICE + indice[0]
+
+        sql_stmt = 'CREATE INDEX {} ON {} ({});'.format(nome_indice, indice[1], indice[2])
+        cursorBD.execute(sql_stmt)
+
+        print(u'Index {} criado.'.format(nome_indice))
+
+    print(u'Indices criados com sucesso.')
+
+    conBD.close()
+
 
 def help():
     print('''
-        Uso: python cnpj.py <arquivo_input> <output:csv/sqlite> <path_output>
-        Exemplo: python cnpj.py data/F.K032001K.D81106D sqlite data/CNPJ.db
+Uso: python cnpj.py <arquivo_input> <output:csv|sqlite> <path_output> [--index]
+Exemplo: python cnpj.py "data/F.K032001K.D81106D" sqlite "data" --index
     ''')
 
+
 def main():
-    # python cnpj.py <arquivo_input> <output:csv/sqlite> <arquivo_output>
-    if len(sys.argv) != 4:
+    # python cnpj.py <arquivo_input> <output:csv|sqlite> <arquivo_output> [--index]
+    num_argv = len(sys.argv)
+    if num_argv < 4:
         help()
         sys.exit(-1)
     else:
@@ -246,13 +387,22 @@ def main():
 
         if tipo_output not in ['csv','sqlite']:
             print('''
-                Erro: tipo de output inválido. 
-                Escolha um dos seguintes tipos de output: csv ou sqlite.
+Erro: tipo de output inválido. 
+Escolha um dos seguintes tipos de output: csv ou sqlite.
             ''')
 
             help()
         else:
             cnpj_full(input_path, tipo_output, output_path)
 
+            # Possui argumento opcional
+            if num_argv > 4:
+                for opcional in sys.argv[4:num_argv]:
+                    if (opcional == '--index') and (tipo_output == 'sqlite'):
+                        cnpj_index(output_path)
+
+
 if __name__ == "__main__":
+    print('Iniciando processamento em {}'.format(datetime.datetime.now()))
     main()
+    print('Processamento concluido em {}'.format(datetime.datetime.now()))
