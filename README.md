@@ -179,9 +179,16 @@ Pode ser sobrescrito em tempo de execução usando o argumento `--nivel <num>`
 
 `QUALIFICACOES`: Especifica a lista de qualificações de sócios a serem consideradas na busca dos relacionamentos. Caso `TODAS`, qualquer relação de sociedade listada no BD é considerada.
 
+## Trabalhando diretamente com a classe RedeCNPJ
+
+O objetivo do `consulta.py` é disponibilizar uma interface por linha de comando para facilitar a extração/visualização da rede de relacionamentos de empresas e pessoas a partir da base de dados da RF convertida em sqlite. Ele é uma "casca" para a classe `RedeCNPJ` definida em `rede_cnpj.py`, onde fica a inteligência de navegação no BD e criação de rede/grafo usando o pacote `networkx`, além de métodos para conversão em DataFrames pandas e formatos diversos de representação de estruturas em grafo.
+
+Em seu projeto você pode instanciar diretamente a `RedeCNPJ` especificando a conexão ao BD e o nível máximo de navegação nos relacionamentos, usar os métodos de inserção de empresas/pessoas para montar a rede (sem se preocupar com a navegação para as relacionadas), e usar os métodos para conversão da rede em DataFrame ou formatos diversos de representação de grafos.
+
+E dessa forma você pode também usar o grafo gerado (atributo "G" da classe) para incrementá-lo a partir de outras fontes de dados de interesse para seu caso de uso e usar os diversos algoritmos disponibilizados pela biblioteca `networkx`, como por exemplo detecção de ciclos.
 `
 ## TO DO
 
-* Aprimorar a documentação do código e as instruções neste README.
+* Aprimorar a documentação do código (principalmente da classe RedeCNPJ) e as instruções neste README.
 
 * Aprimorar a visualização interativa em grafo para incluir informações cadastrais das empresas no **mouse over**, possibilitar ligar/desligar rótulos de "nós" e vínculos, entre outras.
