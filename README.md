@@ -50,20 +50,15 @@ Sócios | 1,71gb | 18.613.392
 <sup>*</sup> Observar que esta quantidade de linhas não corresponde ao número de linhas referentes a CNAEs secundários no arquivo original, uma vez que no original todos os CNAEs secundários de uma determinada empresa estão na mesma linha, enquanto na versão convertida é gerada uma linha para cada CNAE secundário associado à empresa.
 
 ## Como executar
-`python cnpj.py <arquivo original> <tipo de saída:csv ou sqlite> <pasta saída> [--index]`
-
-ou, no python3:
-
 `python3 cnpj.py <arquivo original> <tipo de saída:csv ou sqlite> <pasta saída> [--index]`
 
 O argumento opcional `--index`, aplicável somente para saída sqlite, indica que ao final da carga devem ser gerados índices automaticamente.
 A criação de índices é muito recomendada e essencial para a funcionalidade de consultas.
 
-## Exemplo
-`python cnpj.py "data\F.K032001K.D90308" sqlite "data" --index`
-
-ou, no python3:
+## Exemplos
 `python3 cnpj.py "data\F.K032001K.D90308" sqlite "data" --index`
+
+`python3 cnpj.py "data\DADOS_ABERTOS_CNPJ.zip" sqlite "data" --index`
 
 ## Separando arquivos CSV por estado ou municipio
 
