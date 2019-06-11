@@ -4,6 +4,11 @@ Possibilita também fazer consultas de empresas ou sócios e gravar resultados e
 
 ![Grafo](img/grafo.png?raw=true "Grafo")
 
+**Atenção**: Adaptado em 11/06/2019 para suportar nova forma de disponibilização da base, em múltiplos arquivos zip.
+Usar argumento opcional `--dir`.
+
+Além disso, a partir de agora, ao converter para base sqlite, índices são criados automaticamente. Para evitar a geração automática, usar o argumento `--noindex`.
+
 # Conversão para CSV ou SQLITE
 
 ## Configurações prévias
@@ -50,13 +55,17 @@ Sócios | 1,71gb | 18.613.392
 <sup>*</sup> Observar que esta quantidade de linhas não corresponde ao número de linhas referentes a CNAEs secundários no arquivo original, uma vez que no original todos os CNAEs secundários de uma determinada empresa estão na mesma linha, enquanto na versão convertida é gerada uma linha para cada CNAE secundário associado à empresa.
 
 ## Como executar
-`python3 cnpj.py <arquivo original> <tipo de saída:csv ou sqlite> <pasta saída> [--index]`
+`python3 cnpj.py <caminho entrada> <tipo de saída:csv ou sqlite> <pasta saída> [--dir] [--noindex]`
 
-O argumento opcional `--index`, aplicável somente para saída sqlite, indica que ao final da carga devem ser gerados índices automaticamente.
+Caso a base seja disponibilizada em múltiplos arquivos zip, salvar em uma pasta, usá-la como `<caminho entrada>` e especificar o argumento `--dir`.
+
+O argumento opcional `--noindex`, aplicável somente para saída sqlite, indica que **não** devem ser gerados índices automaticamente.
 A criação de índices é muito recomendada e essencial para a funcionalidade de consultas.
 
 ## Exemplos
 `python3 cnpj.py "data\F.K032001K.D90308" sqlite "data" --index`
+
+`python3 cnpj.py "data" sqlite "data" --dir --noindex`
 
 `python3 cnpj.py "data\DADOS_ABERTOS_CNPJ.zip" sqlite "data" --index`
 
