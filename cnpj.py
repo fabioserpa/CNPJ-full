@@ -209,7 +209,8 @@ def cnpj_full(input_list, tipo_output, output_path):
                                  '9':TRAILLER_COLUNAS},
                           dtype={'1': EMPRESAS_DTYPE,
                                  '2': SOCIOS_DTYPE},
-                          chunksize=CHUNKSIZE)
+                          chunksize=CHUNKSIZE,
+                          encoding='ISO-8859-15')
 
         # Itera sobre blocos (chunks) do arquivo
         for i_bloco, bloco in enumerate(dados):

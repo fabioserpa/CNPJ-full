@@ -1,7 +1,8 @@
 import pandas as pd
 
 def read_cfwf(filepath_or_buffer, type_width, colspecs, names=None,
-              dtype=None, chunksize=None, nrows=None, compression='infer'):
+              dtype=None, chunksize=None, nrows=None, compression='infer',
+              encoding=None):
     '''Read complex fixed-width formatted lines, which are fixed-width formatted
     files with different line types, each one possibly having different
     colspecs, names and dtypes. Returns a dict of line type -> pandas.DataFrame.
@@ -44,7 +45,8 @@ def read_cfwf(filepath_or_buffer, type_width, colspecs, names=None,
                            delimiter='\t', # To avoid autostrip content
                            chunksize=chunksize,
                            nrows=nrows,
-                           compression=compression)
+                           compression=compression,
+                           encoding=encoding)
 
     if chunksize is None:
         return _cfwf_chunck(raw_data, 
