@@ -9,6 +9,12 @@ Usar argumento opcional `--dir`.
 
 Além disso, a partir de agora, ao converter para base sqlite, índices são criados automaticamente. Para evitar a geração automática, usar o argumento `--noindex`.
 
+**Ajustes da Última Versão**:
+Na última atualização de dados, em maio/2019, a RF passou a incluir os registros de sócios das filiais, e não apenas da matriz, embora aparentemente os sócios sejam sempre os mesmos. Essa mudança fez com que a rede de relacionamentos para empresas com muitas filiais e sócios ficasse muito densa, prejudicando ou inviabilizando a visualização. Para contornar esse problema, o script de consulta foi atualizado para ignorar os sócios das filiais.
+
+**Melhorias da Última Versão**:
+Agora, a visualização interativa em HTML (parâmetro `--viz`) inclui detalhes das empresas no **mouse over**, além de permitir ligar/desligar os rótulos dos nós (empresas/sócios) e dos vínculos (qualificação dos sócios ou "filial"). 
+
 # Conversão para CSV ou SQLITE
 
 ## Configurações prévias
@@ -63,11 +69,11 @@ O argumento opcional `--noindex`, aplicável somente para saída sqlite, indica 
 A criação de índices é muito recomendada e essencial para a funcionalidade de consultas.
 
 ## Exemplos
-`python3 cnpj.py "data\F.K032001K.D90308" sqlite "data" --index`
+`python3 cnpj.py "data\F.K032001K.D90308" sqlite "data"`
 
 `python3 cnpj.py "data" sqlite "data" --dir --noindex`
 
-`python3 cnpj.py "data\DADOS_ABERTOS_CNPJ.zip" sqlite "data" --index`
+`python3 cnpj.py "data\DADOS_ABERTOS_CNPJ.zip" sqlite "data"`
 
 ## Separando arquivos CSV por estado ou municipio
 
@@ -190,9 +196,7 @@ O objetivo do `consulta.py` é disponibilizar uma interface por linha de comando
 Em seu projeto você pode instanciar diretamente a `RedeCNPJ` especificando a conexão ao BD e o nível máximo de navegação nos relacionamentos, usar os métodos de inserção de empresas/pessoas para montar a rede (sem se preocupar com a navegação para as relacionadas), e usar os métodos para conversão da rede em DataFrame ou formatos diversos de representação de grafos.
 
 E dessa forma você pode também usar o grafo gerado (atributo "G" da classe) para incrementá-lo a partir de outras fontes de dados de interesse para seu caso de uso e usar os diversos algoritmos disponibilizados pela biblioteca `networkx`, como por exemplo detecção de ciclos.
-`
+
 ## TO DO
 
 * Aprimorar a documentação do código (principalmente da classe RedeCNPJ) e as instruções neste README.
-
-* Aprimorar a visualização interativa em grafo para incluir informações cadastrais das empresas no **mouse over**, possibilitar ligar/desligar rótulos de "nós" e vínculos, entre outras.
