@@ -12,6 +12,10 @@ class RedeCNPJ:
     __conBD = None  
     __nivel_max = 1
     __qualificacoes = 'TODAS'
+
+    cont_select_empresas = 0
+    cont_select_empresas_socios = 0
+    cont_select_socios = 0
     
     G = None
 
@@ -109,12 +113,12 @@ class RedeCNPJ:
 
                 if tipo_socio == 1:
                     self._vinculos(tipo_pessoa=tipo_socio, id_pessoa=cnpj_cpf_socio)
-                if tipo_socio == 2:
+                else:
                     self._vinculos(tipo_pessoa=tipo_socio, id_pessoa=(cnpj_cpf_socio,nome_socio))
         else:
             print('Nenhum socio encontrado com o cpf ou nome informado.')
 
-    def _vinculos(self, tipo_pessoa, id_pessoa, nivel=0, origem=None):
+    def _vinculos(self, tipo_pessoa, id_pessoa, atributos=None, nivel=0, origem=None):
         nome = None
 
         # Monta o id do node de acordo com o tipo de pessoa
@@ -127,67 +131,41 @@ class RedeCNPJ:
         # Nova pessoa
         if id_pessoa_str not in self.G:
             nova_pessoa = True
-            self.G.add_node(id_pessoa_str, nome=nome, tipo_pessoa=tipo_pessoa, nivel=nivel)
+
+            if atributos:
+                self.G.add_node(id_pessoa_str, nome=nome, tipo_pessoa=tipo_pessoa, nivel=nivel, **atributos)
+            else:
+                self.G.add_node(id_pessoa_str, nome=nome, tipo_pessoa=tipo_pessoa, nivel=nivel)
 
             #self.G.nodes[id_pessoa_str]['tipo_pessoa'] = tipo_pessoa
             #self.G.nodes[id_pessoa_str]['nivel'] = nivel
 
             # Se for PJ, pega dados da empresa na tabela de empresas
             if (tipo_pessoa == 1):
-                sql = '''
-                    SELECT
-                        cnpj,
-                        matriz_filial, 
-                        razao_social, 
-                        nome_fantasia, 
-                        situacao, 
-                        data_situacao,
-                        motivo_situacao,
-                        nm_cidade_exterior,
-                        cod_pais,
-                        nome_pais,
-                        cod_nat_juridica,
-                        data_inicio_ativ, 
-                        cnae_fiscal,
-                        tipo_logradouro,
-                        logradouro,
-                        numero,
-                        complemento,
-                        bairro,
-                        cep,
-                        uf,
-                        cod_municipio,
-                        municipio,
-                        email,
-                        qualif_resp,
-                        capital_social,
-                        porte,
-                        opc_simples,
-                        data_opc_simples,
-                        data_exc_simples,
-                        opc_mei,
-                        sit_especial,
-                        data_sit_especial
-                    FROM
-                        empresas
-                    WHERE
-                        cnpj = '{0}'
-                '''.format(id_pessoa)
-                
-                try:
-                    empresa = pd.read_sql_query(sql, self.__conBD).iloc[0,:] # pega primeiro registro
+                # Atualizacao: pega do banco apenas se dados nao vieram como parametro
+                if not atributos:
+                    sql = '''
+                        SELECT *
+                        FROM empresas
+                        WHERE cnpj = '{0}'
+                    '''.format(id_pessoa)
+                    
+                    try:
+                        empresa = pd.read_sql_query(sql, self.__conBD).iloc[0,:] # pega primeiro registro
+                        self.cont_select_empresas += 1
 
-                    # inclui atributos no node, com base nas colunas da tabela de empresas
-                    if (str(empresa['nome_fantasia']).strip() == '') or (str(empresa['nome_fantasia']).strip() == 'NAO POSSUI'):
-                        self.G.nodes[id_pessoa_str]['nome'] = empresa['razao_social'] 
-                    else:
-                        self.G.nodes[id_pessoa_str]['nome'] = empresa['nome_fantasia'] 
+                        for k, v in empresa.items():
+                            self.G.nodes[id_pessoa_str][k] = v
 
-                    for k, v in empresa.items():
-                        self.G.nodes[id_pessoa_str][k] = v
+                    except:
+                        print('Empresa nao encontrada: {}'.format(id_pessoa_str))
+                        raise KeyError
 
-                except:
-                    print('Empresa nao encontrada: {}'.format(id_pessoa_str))
+                if (str(self.G.nodes[id_pessoa_str]['nome_fantasia']).strip() == '') or \
+                            (str(self.G.nodes[id_pessoa_str]['nome_fantasia']).strip() == 'NAO POSSUI'):
+                    self.G.nodes[id_pessoa_str]['nome'] = self.G.nodes[id_pessoa_str]['razao_social'] 
+                else:
+                    self.G.nodes[id_pessoa_str]['nome'] = self.G.nodes[id_pessoa_str]['nome_fantasia']
 
             else:
                 # Se no for pessoa fisica
@@ -230,8 +208,66 @@ class RedeCNPJ:
                     self._vinculos(tipo_pessoa=1, id_pessoa=empresa, nivel=nivel+1, origem=id_pessoa)
 
             else:
-                # Relacionados ainda nao estao no grafo. Buscar no BD
+                # Relacionados ainda nao estao no grafo; buscar no BD.
+                # (A) busca EMPRESAS das quais esta PJ/PF eh socia
                 sql = '''
+                    SELECT 
+                        s.cnpj as s_cnpj, 
+                        s.cod_qualificacao as s_cod_qualificacao, 
+                        s.data_entrada as s_data_entrada,
+                        e.* 
+                    FROM 
+                        socios s
+                            inner join empresas e
+                                on e.cnpj = s.cnpj and e.matriz_filial = 1
+                    '''
+
+                if tipo_pessoa == 1:
+                    sql += '''
+                        WHERE
+                            s.cnpj_cpf_socio = '{0}'
+                    '''.format(id_pessoa)
+                else:
+                    sql += '''
+                        WHERE s.cnpj_cpf_socio = '{0}' AND 
+                              s.nome_socio = '{1}'
+                    '''.format(id_pessoa[0],id_pessoa[1])
+
+                empresas = pd.read_sql_query(sql, self.__conBD)
+                self.cont_select_empresas_socios += 1
+
+                for _, empresa in empresas.iterrows():
+                    cod_qualificacao = empresa['s_cod_qualificacao']
+
+                    # Apenas adiciona relacionamento se for qualificacao de interesse
+                    if (self.__qualificacoes == 'TODAS') | (cod_qualificacao in self.__qualificacoes): 
+                        cnpj = empresa['s_cnpj']
+                        data_entrada = empresa['s_data_entrada']
+
+                        if self.__qualificacoes != 'TODAS':
+                            qualificacao = self.__qualificacoes[cod_qualificacao]
+                        else:
+                            qualificacao = cod_qualificacao     
+
+                        # se a empresa nao for a origem desse pulo
+                        if cnpj != origem:
+                            atributos = dict(empresa.drop(['s_cnpj','s_cod_qualificacao','s_data_entrada']))
+
+                            # chama recursivamente para tratar a PJ
+                            self._vinculos(tipo_pessoa=1, id_pessoa=cnpj, nivel=nivel+1, origem=id_pessoa, atributos=atributos)
+
+                            # adiciona aresta de socio para empresa em questao
+                            self.G.add_edge(id_pessoa_str, 
+                                            cnpj, 
+                                            tipo='socio', 
+                                            cod_qualificacao=cod_qualificacao,
+                                            qualificacao=qualificacao, 
+                                            data_entrada=data_entrada)
+
+
+                # (B) SOCIOS desta PJ (apenas se matriz)
+                if tipo_pessoa == 1 and (self.G.nodes[id_pessoa_str]['matriz_filial'] == '1'):
+                    sql = '''
                     SELECT 
                         cnpj, 
                         tipo_socio, 
@@ -240,70 +276,50 @@ class RedeCNPJ:
                         cod_qualificacao, 
                         data_entrada 
                     FROM 
-                        socios 
-                '''
-                if tipo_pessoa == 1: # se for PJ, consultar socios e também empresas das quais essa PJ pode ser socia
-                    sql += '''
-                        WHERE cnpj = '{0}' OR 
-                              cnpj_cpf_socio = '{0}'
+                        socios
+                    WHERE
+                        cnpj = '{0}'
                     '''.format(id_pessoa)
-                    
-                else: # se for PF, consultar empresas das quais essa PF pode ser socia
-                    sql += '''
-                        WHERE cnpj_cpf_socio = '{0}' AND 
-                              nome_socio = '{1}'
-                    '''.format(id_pessoa[0],id_pessoa[1])
                 
-                empresas_socios = pd.read_sql_query(sql, self.__conBD)
+                    socios = pd.read_sql_query(sql, self.__conBD)
+                    self.cont_select_socios += 1
 
-                # Itera por cada relacionamento encontrado na base
-                for _, emp_socio in empresas_socios.iterrows():
-                    cod_qualificacao = emp_socio['cod_qualificacao']
+                    for _, socio in socios.iterrows():
+                        cod_qualificacao = socio['cod_qualificacao']
 
-                    # Apenas adiciona relacionamento se for qualificacao de interesse
-                    if (self.__qualificacoes == 'TODAS') | (cod_qualificacao in self.__qualificacoes): 
-
-                        cnpj = emp_socio['cnpj']
-                        cnpj_cpf_socio = emp_socio['cnpj_cpf_socio']
-                        nome_socio = emp_socio['nome_socio']
-                        tipo_socio = int(emp_socio['tipo_socio'])
-                        data_entrada = emp_socio['data_entrada']
-
-                        if tipo_socio == 1:
-                            # socio eh PJ
-                            socio = cnpj_cpf_socio
-                            socio_str = socio
-                        else:
-                            # socio eh PF
-                            socio = (cnpj_cpf_socio,nome_socio)
-                            socio_str = cnpj_cpf_socio + nome_socio
-                        
-                        if cnpj == id_pessoa:
-                        # eh socio da empresa em questao
+                        # Apenas adiciona relacionamento se for qualificacao de interesse
+                        if (self.__qualificacoes == 'TODAS') | (cod_qualificacao in self.__qualificacoes): 
+                            cnpj_cpf_socio = socio['cnpj_cpf_socio']
+                            nome_socio = socio['nome_socio']
+                            tipo_socio = int(socio['tipo_socio'])
+                            data_entrada = socio['data_entrada']
+                            if self.__qualificacoes != 'TODAS':
+                                qualificacao = self.__qualificacoes[cod_qualificacao]
+                            else:
+                                qualificacao = cod_qualificacao
+                    
+                            if tipo_socio == 1:
+                                # socio eh PJ
+                                id_socio = cnpj_cpf_socio
+                                socio_str = id_socio
+                            else:
+                                # socio eh PF
+                                id_socio = (cnpj_cpf_socio,nome_socio)
+                                socio_str = cnpj_cpf_socio + nome_socio
 
                             # se o socio nao for a origem desse pulo
-                            if socio != origem:
+                            if id_socio != origem:
                                 # chama recursivamente para tratar a nova PJ/PF
-                                self._vinculos(tipo_pessoa=tipo_socio, id_pessoa=socio, nivel=nivel+1, origem=cnpj)
+                                self._vinculos(tipo_pessoa=tipo_socio, id_pessoa=id_socio, nivel=nivel+1, origem=id_pessoa)
 
                                 # adiciona aresta de socio para empresa em questao
                                 self.G.add_edge(socio_str, 
                                                 id_pessoa_str, 
                                                 tipo='socio', 
-                                                cod_qualificacao=cod_qualificacao, 
+                                                cod_qualificacao=cod_qualificacao,
+                                                qualificacao=qualificacao, 
                                                 data_entrada=data_entrada)
 
-                        else:
-                        # PJ ou PF em questao eh socia dessa empresa
-                            # se a empresa nao for a origem desse pulo
-                            if cnpj != origem:
-                                self._vinculos(tipo_pessoa=1, id_pessoa=cnpj, nivel=nivel+1, origem=socio)
-
-                                self.G.add_edge(socio_str, 
-                                                cnpj, 
-                                                tipo='socio', 
-                                                cod_qualificacao=cod_qualificacao, 
-                                                data_entrada=data_entrada)
                 
                 # Se for filial, busca matriz
                 if (tipo_pessoa == 1) and (self.G.nodes[id_pessoa_str]['matriz_filial'] == '2'):

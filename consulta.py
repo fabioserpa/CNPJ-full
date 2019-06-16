@@ -61,7 +61,7 @@ def consulta(tipo_consulta, objeto_consulta, qualificacoes, path_BD, nivel_max, 
                         str_html = template.read().replace('<!--GRAFO-->', json.dumps(rede.json()))
                         
                     path_html = os.path.join(path_output, 'grafo.html')
-                    with open(path_html, 'w') as html:
+                    with open(path_html, 'w', encoding='utf-8') as html:
                         html.write(str_html)
 
                     if config.PATH_NAVEGADOR:
