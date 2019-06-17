@@ -12,10 +12,6 @@ class RedeCNPJ:
     __conBD = None  
     __nivel_max = 1
     __qualificacoes = 'TODAS'
-
-    cont_select_empresas = 0
-    cont_select_empresas_socios = 0
-    cont_select_socios = 0
     
     G = None
 
@@ -29,18 +25,30 @@ class RedeCNPJ:
     def insere_pessoa(self, tipo_pessoa, id_pessoa):
         self._vinculos(tipo_pessoa=tipo_pessoa, id_pessoa=id_pessoa)
 
-    def dataframe_pessoas(self):
-        node_data = self.G.nodes(data=True)
-        return pd.DataFrame([i[1] for i in node_data], index=[i[0] for i in node_data])
+    def dataframe_pessoas_G(self, G):
+        return pd.DataFrame.from_dict(dict(G.nodes(data=True)), orient='index')
 
-    def dataframe_vinculos(self):
-        edge_data = self.G.edges(data=True)
+    def dataframe_pessoas(self, nivel_max=None):
+        if nivel_max is None:
+            nivel_max = self.__nivel_max
+
+        df = self.dataframe_pessoas_G(self.G)
+        return df[df['nivel'] <= nivel_max]
+
+    def dataframe_vinculos_G(self, G):
+        edge_data = G.edges(data=True)
         return pd.DataFrame([i[2] for i in edge_data], 
                             index=pd.MultiIndex.from_tuples([(i[0], i[1]) for i in edge_data], 
                             names=['source','target']))
 
+    def dataframe_vinculos(self):
+        return self.dataframe_vinculos_G(self.G)
+
+    def json_G(self, G):
+        return json_graph.node_link_data(G)
+
     def json(self):
-        return json_graph.node_link_data(self.G)
+        return self.json_G(self.G)
 
     def gera_json(self, path):
         import json
@@ -48,12 +56,15 @@ class RedeCNPJ:
         with open(path, "w") as f:
             f.write(json.dumps(self.json()))
 
-    def gera_graphml(self, path):
-        nx.write_graphml(self.G, path)
+    def gera_graphml_G(self, G, path):
+        nx.write_graphml(G, path)
 
-    def gera_gexf(self, path):
+    def gera_graphml(self, path):
+        self.gera_graphml_G(self.G, path)
+
+    def gera_gexf_G(self, G, path):
         # Antes de gerar esse formato, necessario adaptar alguns atributos do grafo
-        G_adapt = self.G.copy()
+        G_adapt = G.copy()
 
         pos = nx.spring_layout(G_adapt, dim=4, scale=1000)
         
@@ -83,6 +94,9 @@ class RedeCNPJ:
                     G_adapt.nodes[node][coluna] = float(G_adapt.nodes[node][coluna])
 
         nx.write_gexf(G_adapt, path)
+
+    def gera_gexf(self, path):
+        self.gera_gexf_G(self.G, path)
 
     def insere_com_cpf_ou_nome(self, cpf='', nome=''):
         # A partir de um nome ou um cpf, busca socios com esses dados e inclui na rede
@@ -152,7 +166,6 @@ class RedeCNPJ:
                     
                     try:
                         empresa = pd.read_sql_query(sql, self.__conBD).iloc[0,:] # pega primeiro registro
-                        self.cont_select_empresas += 1
 
                         for k, v in empresa.items():
                             self.G.nodes[id_pessoa_str][k] = v
@@ -234,7 +247,6 @@ class RedeCNPJ:
                     '''.format(id_pessoa[0],id_pessoa[1])
 
                 empresas = pd.read_sql_query(sql, self.__conBD)
-                self.cont_select_empresas_socios += 1
 
                 for _, empresa in empresas.iterrows():
                     cod_qualificacao = empresa['s_cod_qualificacao']
@@ -282,7 +294,6 @@ class RedeCNPJ:
                     '''.format(id_pessoa)
                 
                     socios = pd.read_sql_query(sql, self.__conBD)
-                    self.cont_select_socios += 1
 
                     for _, socio in socios.iterrows():
                         cod_qualificacao = socio['cod_qualificacao']
