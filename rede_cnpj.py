@@ -348,7 +348,7 @@ class RedeCNPJ:
                         matriz = pd.read_sql_query(sql, self.__conBD).iloc[0,:]
                         cnpj_matriz = matriz['cnpj']
 
-                        self._vinculos(tipo_pessoa=1, id_pessoa=cnpj_matriz, nivel=nivel, origem=id_pessoa)
+                        self._vinculos(tipo_pessoa=1, id_pessoa=cnpj_matriz, nivel=nivel+1, origem=id_pessoa)
 
                         self.G.add_edge(id_pessoa_str, cnpj_matriz, tipo='filial')
                     except:
