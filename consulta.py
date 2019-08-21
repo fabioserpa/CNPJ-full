@@ -13,7 +13,7 @@ def consulta(tipo_consulta, objeto_consulta, qualificacoes, path_BD, nivel_max, 
              csv=False, colunas_csv=None, csv_sep=',', graphml=False, gexf=False, viz=False):
 
     try:
-        conBD = sqlite3.connect('file:/{}?mode=ro'.format(os.path.abspath(path_BD)), 
+        conBD = sqlite3.connect('file://{}?mode=ro'.format(os.path.abspath(path_BD)), 
                                 uri=True)
 
         try:
