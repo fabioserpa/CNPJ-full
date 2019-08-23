@@ -4,16 +4,15 @@ Possibilita também fazer consultas de empresas ou sócios e gravar resultados e
 
 ![Grafo](img/grafo.png?raw=true "Grafo")
 
-**Atenção**: Adaptado em 11/06/2019 para suportar nova forma de disponibilização da base, em múltiplos arquivos zip.
-Usar argumento opcional `--dir`.
+**ATENÇÃO**:
 
-Além disso, a partir de agora, ao converter para base sqlite, índices são criados automaticamente. Para evitar a geração automática, usar o argumento `--noindex`.
+A **forma recomendada** de fazer a carga atualmente é: salvar os múltiplos arquivos zip em uma pasta dedicada e executar:
 
-**Ajustes da Última Versão**:
-Na última atualização de dados, em maio/2019, a RF passou a incluir os registros de sócios das filiais, e não apenas da matriz, embora aparentemente os sócios sejam sempre os mesmos. Essa mudança fez com que a rede de relacionamentos para empresas com muitas filiais e sócios ficasse muito densa, prejudicando ou inviabilizando a visualização. Para contornar esse problema, o script de consulta foi atualizado para ignorar os sócios das filiais.
+`python3 cnpj.py PASTA_COM_ZIPS sqlite PASTA_DE_SAIDA --dir`
 
-**Melhorias da Última Versão**:
-Agora, a visualização interativa em HTML (parâmetro `--viz`) inclui detalhes das empresas no **mouse over**, além de permitir ligar/desligar os rótulos dos nós (empresas/sócios) e dos vínculos (qualificação dos sócios ou "filial"). 
+ou
+
+`python3 cnpj.py PASTA_COM_ZIPS csv PASTA_DE_SAIDA --dir`
 
 # Conversão para CSV ou SQLITE
 
@@ -71,9 +70,9 @@ A criação de índices é muito recomendada e essencial para a funcionalidade d
 ## Exemplos
 `python3 cnpj.py "data\F.K032001K.D90308" sqlite "data"`
 
-`python3 cnpj.py "data" sqlite "data" --dir --noindex`
+`python3 cnpj.py "data" sqlite "output" --dir`
 
-`python3 cnpj.py "data\DADOS_ABERTOS_CNPJ.zip" sqlite "data"`
+`python3 cnpj.py "data\DADOS_ABERTOS_CNPJ.zip" sqlite "data" --noindex`
 
 ## Separando arquivos CSV por estado ou municipio
 
