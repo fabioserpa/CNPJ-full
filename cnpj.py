@@ -329,8 +329,8 @@ def cnpj_full(input_list, tipo_output, output_path):
                         replace_append = 'w'
                         header=True
 
-                    nome_arquivo_csv = REGISTROS_TIPOS[tipo_registro] + '.json'
-                    df.to_json(os.path.join(output_path,nome_arquivo_csv), orient='records')
+                    nome_arquivo_json = REGISTROS_TIPOS[tipo_registro] + '.json'
+                    df.to_json(os.path.join(output_path,nome_arquivo_json), orient='records')
 
 
     if tipo_output == 'sqlite':
@@ -414,7 +414,7 @@ Argumentos opcionais:
 Exemplos: python cnpj.py "data/F.K032001K.D81106D" sqlite "output"
           python cnpj.py "data" sqlite "output" --dir
           python cnpj.py "data" sqlite "output" --dir --noindex
-          python cnpj.py "data" json "output" --dir --noindex
+          python cnpj.py "data" json "output" --dir
           python cnpj.py "data" csv "output" --dir
     ''')
 
