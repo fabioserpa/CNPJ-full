@@ -29,20 +29,21 @@ A versão mais atual. Se estiver usando Python3:
 
 `$ python3 -m pip install --upgrade pip`
 
-## Pandas (pacote de análise de dados)
-A versão mais atual da biblioteca [Pandas](https://pandas.pydata.org) para Python. Para instalar via Pip:
+## Instalar Pré-Requisitos:
 
-`$ python3 -m pip install pandas`
+`$ pip install -r requirements.txt`
+
+Esse comando instalará as seguintes bibliotecas:
+
+#### Pandas
+A versão mais atual da biblioteca [Pandas](https://pandas.pydata.org) para Python. 
 
 #### NumPy
-A princípio, não é necessário. O script neste repositório usa funções da biblioteca [Pandas](https://pandas.pydata.org), que utiliza uma extensão de NumPy chamada [NumExpr](#numexpr). Então, **caso** seu terminal retorne erros por ausência do pacote [NumPy](https://pypi.org/project/numpy/), esse é o motivo. Para instalá-lo (se precisar):
-
-`$ python3 -m pip install numpy`
+A princípio, não é necessário. O script neste repositório usa funções da biblioteca [Pandas](https://pandas.pydata.org), que utiliza uma extensão de NumPy chamada [NumExpr](#numexpr). Então, **caso** seu terminal retorne erros por ausência do pacote [NumPy](https://pypi.org/project/numpy/), esse é o motivo. 
 
 #### NumExpr
-O [Pandas](https://pandas.pydata.org) usa. É uma extensão que melhora a velocidade de análise no pacote [NumPy](#pacote-numpy). Para instalar a versão mais atual da [NumExpr](https://pypi.org/project/numexpr):
+O [Pandas](https://pandas.pydata.org) usa. É uma extensão que melhora a velocidade de análise no pacote [NumPy](#pacote-numpy).
 
-`$ python3 -m pip install numexpr`
 
 ## Antes de executar
 Atente para o fato de que o arquivo de dados disponibilizado pela RF é muito grande. São aprox. 85 GB de arquivo texto descomprimido.
