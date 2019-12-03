@@ -130,7 +130,7 @@ class RedeCNPJ:
                 else:
                     self._vinculos(tipo_pessoa=tipo_socio, id_pessoa=(cnpj_cpf_socio,nome_socio))
         else:
-            print('Nenhum socio encontrado com o cpf ou nome informado.')
+            print('Nenhum socio encontrado com o cpf ou nome informado: cpf:{} / nome:{}'.format(cpf, nome))
 
     def _vinculos(self, tipo_pessoa, id_pessoa, atributos=None, nivel=0, origem=None):
         nome = None
@@ -172,6 +172,7 @@ class RedeCNPJ:
 
                     except:
                         print('Empresa nao encontrada: {}'.format(id_pessoa_str))
+                        self.G.remove_node(id_pessoa_str)
                         raise KeyError
 
                 if (str(self.G.nodes[id_pessoa_str]['nome_fantasia']).strip() == '') or \
