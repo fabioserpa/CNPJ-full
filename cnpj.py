@@ -9,165 +9,162 @@ import pandas as pd
 
 from cfwf import read_cfwf
 
+# CONSTANTES PARA DEFINICAO CENTRALIZADA DA NOMENCLATURA A SER UTILIZADA
+# Nomes das tabelas/arquivos
+EMPRESAS = 'empresas'
+SOCIOS = 'socios'
+CNAES_SECUNDARIOS = 'cnaes_secundarios'
+
+# Nome das colunas de empresas
+EMP_CNPJ = 'cnpj'
+EMP_MATRIZ_FILIAL = 'matriz_filial'
+EMP_RAZAO_SOCIAL = 'razao_social'
+EMP_NOME_FANTASIA = 'nome_fantasia'
+EMP_SITUACAO = 'situacao'
+EMP_DATA_SITUACAO = 'data_situacao'
+EMP_MOTIVO_SITUACAO = 'motivo_situacao'
+EMP_NM_CIDADE_EXTERIOR = 'nm_cidade_exterior'
+EMP_COD_PAIS = 'cod_pais'
+EMP_NOME_PAIS = 'nome_pais'
+EMP_COD_NAT_JURIDICA = 'cod_nat_juridica'
+EMP_DATA_INICIO_ATIV = 'data_inicio_ativ'
+EMP_CNAE_FISCAL = 'cnae_fiscal'
+EMP_TIPO_LOGRADOURO = 'tipo_logradouro'
+EMP_LOGRADOURO = 'logradouro'
+EMP_NUMERO = 'numero'
+EMP_COMPLEMENTO = 'complemento'
+EMP_BAIRRO = 'bairro'
+EMP_CEP = 'cep'
+EMP_UF = 'uf'
+EMP_COD_MUNICIPIO = 'cod_municipio'
+EMP_MUNICIPIO = 'municipio'
+EMP_DDD_1 = 'ddd_1'
+EMP_TELEFONE_1 = 'telefone_1'
+EMP_DDD_2 = 'ddd_2'
+EMP_TELEFONE_2 = 'telefone_2'
+EMP_DDD_FAX = 'ddd_fax'
+EMP_NUM_FAX = 'num_fax'
+EMP_EMAIL = 'email'
+EMP_QUALIF_RESP = 'qualif_resp'
+EMP_CAPITAL_SOCIAL = 'capital_social'
+EMP_PORTE = 'porte'
+EMP_OPC_SIMPLES = 'opc_simples'
+EMP_DATA_OPC_SIMPLES = 'data_opc_simples'
+EMP_DATA_EXC_SIMPLES = 'data_exc_simples'
+EMP_OPC_MEI = 'opc_mei'
+EMP_SIT_ESPECIAL = 'sit_especial'
+EMP_DATA_SIT_ESPECIAL = 'data_sit_especial'
+
+# Nome das colunas de socios
+SOC_CNPJ = 'cnpj'
+SOC_TIPO_SOCIO = 'tipo_socio'
+SOC_NOME_SOCIO = 'nome_socio'
+SOC_CNPJ_CPF_SOCIO = 'cnpj_cpf_socio'
+SOC_COD_QUALIFICACAO = 'cod_qualificacao'
+SOC_PERC_CAPITAL = 'perc_capital'
+SOC_DATA_ENTRADA = 'data_entrada'
+SOC_COD_PAIS_EXT = 'cod_pais_ext'
+SOC_NOME_PAIS_EXT = 'nome_pais_ext'
+SOC_CPF_REPRES = 'cpf_repres'
+SOC_NOME_REPRES = 'nome_repres'
+SOC_COD_QUALIF_REPRES = 'cod_qualif_repres'
+
+# Nome das colunas de cnaes secundarios
+CNA_CNPJ = 'cnpj'
+CNA_CNAE = 'cnae'
+CNA_ORDEM = 'cnae_ordem'
+# FIM DAS CONSTANTES PARA DEFINICAO DE NOMENCLATURA
+
 REGISTROS_TIPOS = {
-    '1':'empresas',
-    '2':'socios',
-    '6':'cnaes_secundarios'
+    '1':EMPRESAS,
+    '2':SOCIOS,
+    '6':CNAES_SECUNDARIOS
 }
 
 EMPRESAS_COLUNAS = [
-    'cnpj',
-    'matriz_filial',     
-    'razao_social',      
-    'nome_fantasia',     
-    'situacao',          
-    'data_situacao',     
-    'motivo_situacao',   
-    'nm_cidade_exterior',
-    'cod_pais',          
-    'nome_pais',         
-    'cod_nat_juridica',  
-    'data_inicio_ativ',  
-    'cnae_fiscal',       
-    'tipo_logradouro',   
-    'logradouro',        
-    'numero',            
-    'complemento',       
-    'bairro',            
-    'cep',               
-    'uf',                
-    'cod_municipio',     
-    'municipio',         
-    'ddd_1',             
-    'telefone_1',        
-    'ddd_2',             
-    'telefone_2',        
-    'ddd_fax',           
-    'num_fax',           
-    'email',             
-    'qualif_resp',       
-    'capital_social',    
-    'porte',             
-    'opc_simples',       
-    'data_opc_simples',  
-    'data_exc_simples',  
-    'opc_mei',           
-    'sit_especial',      
-    'data_sit_especial'
+    (EMP_CNPJ,(3, 17)), 
+    (EMP_MATRIZ_FILIAL,(17,18)),
+    (EMP_RAZAO_SOCIAL,(18,168)),
+    (EMP_NOME_FANTASIA,(168,223)),
+    (EMP_SITUACAO,(223,225)),
+    (EMP_DATA_SITUACAO,(225,233)),
+    (EMP_MOTIVO_SITUACAO,(233,235)),
+    (EMP_NM_CIDADE_EXTERIOR,(235,290)),
+    (EMP_COD_PAIS,(290,293)),
+    (EMP_NOME_PAIS,(293,363)),
+    (EMP_COD_NAT_JURIDICA,(363,367)),
+    (EMP_DATA_INICIO_ATIV,(367,375)),
+    (EMP_CNAE_FISCAL,(375,382)),
+    (EMP_TIPO_LOGRADOURO,(382,402)),
+    (EMP_LOGRADOURO,(402,462)),
+    (EMP_NUMERO,(462,468)),
+    (EMP_COMPLEMENTO,(468,624)),
+    (EMP_BAIRRO,(624,674)),
+    (EMP_CEP,(674,682)),
+    (EMP_UF,(682,684)),
+    (EMP_COD_MUNICIPIO,(684,688)),
+    (EMP_MUNICIPIO,(688,738)),
+    (EMP_DDD_1,(738,742)),
+    (EMP_TELEFONE_1,(742,750)),
+    (EMP_DDD_2,(750,754)),
+    (EMP_TELEFONE_2,(754,762)),
+    (EMP_DDD_FAX,(762,766)),
+    (EMP_NUM_FAX,(766,774)),
+    (EMP_EMAIL,(774,889)),
+    (EMP_QUALIF_RESP,(889,891)),
+    (EMP_CAPITAL_SOCIAL,(891,905)),
+    (EMP_PORTE,(905,907)),
+    (EMP_OPC_SIMPLES,(907,908)),
+    (EMP_DATA_OPC_SIMPLES,(908,916)),
+    (EMP_DATA_EXC_SIMPLES,(916,924)),
+    (EMP_OPC_MEI,(924,925)),
+    (EMP_SIT_ESPECIAL,(925,948)),
+    (EMP_DATA_SIT_ESPECIAL,(948,956))
 ]
 
-EMPRESAS_COLSPECS = [
-    (3, 17), 
-    (17 ,18 ),
-    (18 ,168),
-    (168,223),
-    (223,225),
-    (225,233),
-    (233,235),
-    (235,290),
-    (290,293),
-    (293,363),
-    (363,367),
-    (367,375),
-    (375,382),
-    (382,402),
-    (402,462),
-    (462,468),
-    (468,624),
-    (624,674),
-    (674,682),
-    (682,684),
-    (684,688),
-    (688,738),
-    (738,742),
-    (742,750),
-    (750,754),
-    (754,762),
-    (762,766),
-    (766,774),
-    (774,889),
-    (889,891),
-    (891,905),
-    (905,907),
-    (907,908),
-    (908,916),
-    (916,924),
-    (924,925),
-    (925,948),
-    (948,956)
-]
-
-EMPRESAS_DTYPE = {} # 'capital_social':float}
+EMPRESAS_DTYPE = {EMP_CAPITAL_SOCIAL:float}
 
 SOCIOS_COLUNAS = [
-    'cnpj',
-    'tipo_socio',      
-    'nome_socio',       
-    'cnpj_cpf_socio',   
-    'cod_qualificacao', 
-    'perc_capital',     
-    'data_entrada',     
-    'cod_pais_ext',     
-    'nome_pais_ext',    
-    'cpf_repres',       
-    'nome_repres',      
-    'cod_qualif_repres'
+    (SOC_CNPJ,(3, 17)), 
+    (SOC_TIPO_SOCIO,(17,18)),
+    (SOC_NOME_SOCIO,(18,168)),
+    (SOC_CNPJ_CPF_SOCIO,(168,182)),
+    (SOC_COD_QUALIFICACAO,(182,184)),
+    (SOC_PERC_CAPITAL,(184,189)),
+    (SOC_DATA_ENTRADA,(189,197)),
+    (SOC_COD_PAIS_EXT,(197,200)),
+    (SOC_NOME_PAIS_EXT,(200,270)),
+    (SOC_CPF_REPRES,(270,281)),
+    (SOC_NOME_REPRES,(281,341)),
+    (SOC_COD_QUALIF_REPRES,(341,343))
 ]
 
-SOCIOS_COLSPECS = [
-    (3, 17),      
-    (17 ,18 ),
-    (18 ,168),
-    (168,182),
-    (182,184),
-    (184,189),
-    (189,197),
-    (197,200),
-    (200,270),
-    (270,281),
-    (281,341),
-    (341,343)
-]
+SOCIOS_DTYPE = {SOC_PERC_CAPITAL:float}
 
-SOCIOS_DTYPE = {} # 'perc_capital':float}
-
-CNAES_COLUNAS = ['cnpj'] + [num for num in range(99)]
+CNAES_COLNOMES = [CNA_CNPJ] + [num for num in range(99)]
 CNAES_COLSPECS = [(3,17)] + [(num*7+17,num*7+24) for num in range(99)]
 
 HEADER_COLUNAS = [
-    'Nome do arquivo',
-    'Data de gravacao',
-    'Numero da remessa'
-]
-
-HEADER_COLSPECS = [
-    (17,28),
-    (28,36),
-    (36,44)
+    ('Nome do arquivo',(17,28)),
+    ('Data de gravacao',(28,36)),
+    ('Numero da remessa',(36,44))
 ]
 
 TRAILLER_COLUNAS = [
-    'Total de registros de empresas',
-    'Total de registros de socios',
-    'Total de registros de CNAEs secundarios',
-    'Total de registros incluindo header e trailler'
-]
-
-TRAILLER_COLSPECS = [
-    (17,26),
-    (26,35),
-    (35,44),
-    (44,55)
+    ('Total de registros de empresas',(17,26)),
+    ('Total de registros de socios',(26,35)),
+    ('Total de registros de CNAEs secundarios',(35,44)),
+    ('Total de registros incluindo header e trailler',(44,55))
 ]
 
 # (<nome_do_indice>,<tabela>,<coluna>)
 INDICES = [
-    ('empresas_cnpj', REGISTROS_TIPOS['1'], EMPRESAS_COLUNAS[0]),
-    ('empresas_raiz', REGISTROS_TIPOS['1'], 'substr({},0,9)'.format(EMPRESAS_COLUNAS[0])),
-    ('socios_cnpj', REGISTROS_TIPOS['2'], SOCIOS_COLUNAS[0]),
-    ('socios_cpf_cnpj', REGISTROS_TIPOS['2'], SOCIOS_COLUNAS[3]),
-    ('socios_nome', REGISTROS_TIPOS['2'], SOCIOS_COLUNAS[2]),
-    ('cnaes_cnpj', REGISTROS_TIPOS['6'], CNAES_COLUNAS[0])
+    ('empresas_cnpj', EMPRESAS, EMP_CNPJ),
+    ('empresas_raiz', EMPRESAS, 'substr({},0,9)'.format(EMP_CNPJ)),
+    ('socios_cnpj', SOCIOS, SOC_CNPJ),
+    ('socios_cpf_cnpj', SOCIOS, SOC_CNPJ_CPF_SOCIO),
+    ('socios_nome', SOCIOS, SOC_NOME_SOCIO),
+    ('cnaes_cnpj', CNAES_SECUNDARIOS, CNA_CNPJ)
 ]
 
 PREFIXO_INDICE = 'ix_'
@@ -191,22 +188,32 @@ def cnpj_full(input_list, tipo_output, output_path):
         import sqlite3
         conBD = sqlite3.connect(os.path.join(output_path,NOME_ARQUIVO_SQLITE))
 
+    header_colnomes = list(list(zip(*HEADER_COLUNAS))[0])
+    empresas_colnomes = list(list(zip(*EMPRESAS_COLUNAS))[0])
+    socios_colnomes = list(list(zip(*SOCIOS_COLUNAS))[0])
+    trailler_colnomes = list(list(zip(*TRAILLER_COLUNAS))[0])
+
+    header_colspecs = list(list(zip(*HEADER_COLUNAS))[1])
+    empresas_colspecs = list(list(zip(*EMPRESAS_COLUNAS))[1])
+    socios_colspecs = list(list(zip(*SOCIOS_COLUNAS))[1])
+    trailler_colspecs = list(list(zip(*TRAILLER_COLUNAS))[1])
+
     # Itera sobre sequencia de arquivos (p/ suportar arquivo dividido pela RF)
     for i_arq, arquivo in enumerate(input_list):
         print('Processando arquivo: {}'.format(arquivo))
 
         dados = read_cfwf(arquivo, 
                           type_width=1, 
-                          colspecs= {'0':HEADER_COLSPECS,
-                                     '1':EMPRESAS_COLSPECS,
-                                     '2':SOCIOS_COLSPECS,
+                          colspecs= {'0':header_colspecs,
+                                     '1':empresas_colspecs,
+                                     '2':socios_colspecs,
                                      '6':CNAES_COLSPECS,
-                                     '9':TRAILLER_COLSPECS},
-                          names={'0':HEADER_COLUNAS,
-                                 '1':EMPRESAS_COLUNAS, 
-                                 '2':SOCIOS_COLUNAS,
-                                 '6':CNAES_COLUNAS,
-                                 '9':TRAILLER_COLUNAS},
+                                     '9':trailler_colspecs},
+                          names={'0':header_colnomes,
+                                 '1':empresas_colnomes, 
+                                 '2':socios_colnomes,
+                                 '6':CNAES_COLNOMES,
+                                 '9':trailler_colnomes},
                           dtype={'1': EMPRESAS_DTYPE,
                                  '2': SOCIOS_DTYPE},
                           chunksize=CHUNKSIZE,
@@ -214,8 +221,11 @@ def cnpj_full(input_list, tipo_output, output_path):
 
         # Itera sobre blocos (chunks) do arquivo
         for i_bloco, bloco in enumerate(dados):
-            print('Processando bloco {}: até linha {}.'.format(i_bloco+1,
-                                                               (i_bloco+1)*CHUNKSIZE), 
+            print('Bloco {}: até linha {}. [Emps:{}|Socios:{}|CNAEs:{}]'.format(i_bloco+1,
+                                                               (i_bloco+1)*CHUNKSIZE,
+                                                               total_empresas, 
+                                                               total_socios, 
+                                                               total_cnaes), 
                   end='\r')
 
             for tipo_registro, df in bloco.items():
@@ -224,27 +234,27 @@ def cnpj_full(input_list, tipo_output, output_path):
                     total_empresas += len(df)
 
                     # Troca datas zeradas por vazio
-                    df['data_opc_simples'] = (df['data_opc_simples']
-                            .where(df['data_opc_simples'] != '00000000',''))
-                    df['data_exc_simples'] = (df['data_exc_simples']
-                            .where(df['data_exc_simples'] != '00000000',''))
-                    df['data_sit_especial'] = (df['data_sit_especial']
-                            .where(df['data_sit_especial'] != '00000000',''))
+                    df[EMP_DATA_OPC_SIMPLES] = (df[EMP_DATA_OPC_SIMPLES]
+                            .where(df[EMP_DATA_OPC_SIMPLES] != '00000000',''))
+                    df[EMP_DATA_EXC_SIMPLES] = (df[EMP_DATA_EXC_SIMPLES]
+                            .where(df[EMP_DATA_EXC_SIMPLES] != '00000000',''))
+                    df[EMP_DATA_SIT_ESPECIAL] = (df[EMP_DATA_SIT_ESPECIAL]
+                            .where(df[EMP_DATA_SIT_ESPECIAL] != '00000000',''))
 
                 elif tipo_registro == '2': # socios
                     total_socios += len(df)
 
                     # Troca cpf invalido por vazio
-                    df['cpf_repres'] = (df['cpf_repres']
-                            .where(df['cpf_repres'] != '***000000**',''))
-                    df['nome_repres'] = (df['nome_repres']
-                            .where(df['nome_repres'] != 'CPF INVALIDO',''))  
+                    df[SOC_CPF_REPRES] = (df[SOC_CPF_REPRES]
+                            .where(df[SOC_CPF_REPRES] != '***000000**',''))
+                    df[SOC_NOME_REPRES] = (df[SOC_NOME_REPRES]
+                            .where(df[SOC_NOME_REPRES] != 'CPF INVALIDO',''))  
 
                     # Se socio for tipo 1 (cnpj), deixa campo intacto, do contrario, 
                     # fica apenas com os ultimos 11 digitos
-                    df['cnpj_cpf_socio'] = (df['cnpj_cpf_socio']
-                            .where(df['tipo_socio'] == '1',
-                                   df['cnpj_cpf_socio'].str[-11:]))
+                    df[SOC_CNPJ_CPF_SOCIO] = (df[SOC_CNPJ_CPF_SOCIO]
+                            .where(df[SOC_TIPO_SOCIO] == '1',
+                                   df[SOC_CNPJ_CPF_SOCIO].str[-11:]))
 
                 elif tipo_registro == '6': # cnaes_secundarios       
                     total_cnaes += len(df)
@@ -252,12 +262,12 @@ def cnpj_full(input_list, tipo_output, output_path):
                     # Verticaliza tabela de associacao de cnaes secundarios,
                     # mantendo apenas os validos (diferentes de 0000000)
                     df = pd.melt(df, 
-                                 id_vars=[CNAES_COLUNAS[0]], 
+                                 id_vars=[CNA_CNPJ], 
                                  value_vars=range(99),
-                                 var_name='cnae_ordem', 
-                                 value_name='cnae')
+                                 var_name=CNA_ORDEM, 
+                                 value_name=CNA_CNAE)
 
-                    df = df[df['cnae'] != '0000000']
+                    df = df[df[CNA_CNAE] != '0000000']
 
                 elif tipo_registro == '0': # header
                     print('\nINFORMACOES DO HEADER:')
@@ -412,17 +422,29 @@ def main():
             for opcional in sys.argv[4:num_argv]:
                 if (opcional == '--noindex'):
                     gera_index = False
+
                 elif (opcional == '--dir'):
                     input_list = glob.glob(os.path.join(input_path,'*.zip'))
+
+                    if not input_list:
+                        # caso nao ache zip, procura arquivos descompactados.
+                        input_list = glob.glob(os.path.join(input_path,'*.L*'))
+
+                    if not input_list:
+                        # caso nem assim ache, indica erro.
+                        print(u'ERRO: Nenhum arquivo válido encontrado no diretório!')
+                        sys.exit(-1)
+
                     input_list.sort()
+
                 else:
-                    print(u'Argumento opcional inválido.')
+                    print(u'ERRO: Argumento opcional inválido.')
                     help()
-                    break
+                    sys.exit(-1)
 
         if tipo_output not in ['csv','sqlite']:
             print('''
-Erro: tipo de output inválido. 
+ERRO: tipo de output inválido. 
 Escolha um dos seguintes tipos de output: csv ou sqlite.
             ''')
             help()

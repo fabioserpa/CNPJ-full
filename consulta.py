@@ -5,16 +5,17 @@ import subprocess
 
 import pandas as pd
 import sqlite3
+import networkx as nx
 
 import config
 from rede_cnpj import RedeCNPJ
 
 def consulta(tipo_consulta, objeto_consulta, qualificacoes, path_BD, nivel_max, path_output, 
-             csv=False, colunas_csv=None, csv_sep=',', graphml=False, gexf=False, viz=False):
+             csv=False, colunas_csv=None, csv_sep=',', graphml=False, gexf=False, viz=False, 
+             path_conexoes=None):
 
     try:
-        conBD = sqlite3.connect('file://{}?mode=ro'.format(os.path.abspath(path_BD)), 
-                                uri=True)
+        conBD = sqlite3.connect(path_BD)
 
         try:
             rede = RedeCNPJ(conBD, nivel_max=nivel_max, qualificacoes=qualificacoes)
@@ -26,10 +27,16 @@ def consulta(tipo_consulta, objeto_consulta, qualificacoes, path_BD, nivel_max, 
 
                 for _, linha in df_file.iterrows():
                     if qtd_colunas >= 2:
-                        consulta_item(rede, linha[0].strip(), linha[1].strip())
+                        try:
+                            consulta_item(rede, linha[0].strip(), linha[1].strip())
+                        except KeyError as e:
+                            print('Item nao encontrado ({}): {}'.format(linha[0].strip(),
+                                                                        linha[1].strip()))
                     else:
-                        consulta_item(rede, 'cnpj', linha[0].strip())
-
+                        try:
+                            consulta_item(rede, 'cnpj', linha[0].strip())
+                        except KeyError as e:
+                            print('CNPJ nao encontrado: {}'.format(linha[0].strip()))
             else:
                 consulta_item(rede, tipo_consulta, objeto_consulta)
 
@@ -70,6 +77,41 @@ def consulta(tipo_consulta, objeto_consulta, qualificacoes, path_BD, nivel_max, 
                 except Exception as e:
                     print('Não foi possível gerar a visualização. [{}]'.format(e))
 
+            if path_conexoes:
+                df_conexoes = pd.read_csv(path_conexoes, sep=csv_sep, header=None, dtype=str)
+
+                qtd_colunas = len(df_conexoes.columns)
+
+                if qtd_colunas >= 2:
+                    G_undirected = rede.G.to_undirected()
+                    lista_conexoes = []
+
+                    for _, linha in df_conexoes.iterrows():
+                        pessoa_A = linha[0].strip()
+                        pessoa_B = linha[1].strip()
+
+                        conexao = ''
+                        try:
+                            lst_pessoas_conexao = nx.shortest_path(G_undirected, pessoa_A, pessoa_B)
+                            conexao = ' | '.join(lst_pessoas_conexao)
+                        except:
+                            conexao = 'SEM CONEXAO'
+
+                        lista_conexoes.append((pessoa_A, pessoa_B, conexao))
+
+                    pd.DataFrame(lista_conexoes).to_csv(os.path.join(path_output, 'conexoes.csv'),
+                                                        sep=csv_sep,
+                                                        header=None,
+                                                        index=None)
+
+                else:
+                    print('''
+Arquivo de vinculos precisa ter pelo menos duas colunas, contendo a identificacao das pessoas (CNPJ ou cpf+nome).
+No caso de pessoa fisica, informar cpf seguido imediatamente do nome (ex: "***123456**NOME COMPLETO DA PESSOA").
+                    ''')
+
+            print('Consulta finalizada. Verifique o(s) arquivo(s) de saida na pasta "{}".'.format(path_output))
+
         except Exception as e:
             print('Um erro ocorreu:\n{}'.format(e))
         finally:
@@ -80,24 +122,29 @@ def consulta(tipo_consulta, objeto_consulta, qualificacoes, path_BD, nivel_max, 
 
 def consulta_item(rede, tipo_item, item):
     if tipo_item == 'cnpj':
-        print('Consultando CNPJ: {}'.format(item))
+        #print('Consultando CNPJ: {}'.format(item))
         rede.insere_pessoa(1, item.replace('.','').replace('/','').replace('-','').zfill(14))
 
     elif tipo_item == 'nome_socio':
-        print('Consultando socios com nome: {}'.format(item))
+        #print('Consultando socios com nome: {}'.format(item))
         rede.insere_com_cpf_ou_nome(nome=item.upper())
 
     elif tipo_item == 'cpf':
         cpf = mascara_cpf(item.replace('.','').replace('-',''))
-        print('Consultando socios com cpf (mascarado): {}.'.format(cpf))
+        #print('Consultando socios com cpf (mascarado): {}.'.format(cpf))
         rede.insere_com_cpf_ou_nome(cpf=cpf)
 
     elif tipo_item == 'cpf_nome':
         cpf = mascara_cpf(item[:11])
         nome = item[11:]
 
-        print('Consultando socio com cpf (mascarado) {} e nome {}'.format(cpf,nome))
+        #print('Consultando socio com cpf (mascarado) {} e nome {}'.format(cpf,nome))
         rede.insere_pessoa(2,(cpf,nome))
+
+        # Se nao tem vinculo, nao existe socio com esse par cpf e nome
+        if len(rede.dataframe_vinculos()) == 0:
+            print('Nenhum socio encontrado com cpf "{}" e nome "{}"'.format(cpf, nome))
+            rede.G.remove_node(cpf+nome)
     else:
         print('Tipo de consulta invalido: {}.\nTipos possiveis: cnpj, nome_socio, cpf, cpf_nome'.format(tipo_item))
 
@@ -153,6 +200,12 @@ Argumentos opcionais:
           no config.py. Do contrario, basta abrir o arquivo grafo.html gerado 
           em <caminho output>.
 
+  --conexoes: Especifica arquivo com pares de id de pessoas (cnpj ou cpf+nome),
+              um par por linha, para busca de conexoes (diretas ou indiretas) 
+              entre cada par. Gera arquivo conexoes.csv, com tres colunas. 
+              As duas primeiras com o par de pessoas e a terceira coluna
+              com a conexao entre elas, ou a string "SEM CONEXAO".
+
 Exemplos: 
   python consulta.py cnpj 00000000000191 folder --nivel 1 --viz
   python consulta.py file data/input.csv pasta --csv --gexf
@@ -169,6 +222,7 @@ def main():
     viz = False
     nivel = config.NIVEL_MAX_DEFAULT
     path_bd = config.PATH_BD
+    path_conexoes = None
 
     # python consulta.py <tipo consulta> <item|arquivo input> <caminho output> 
     # [--base <arquivo sqlite>] [--nivel <int>] [--csv] [--graphml] [--gexf] [--viz]
@@ -204,6 +258,9 @@ def main():
                 elif opcional == '--viz':
                     viz = True
                     i_argv += 1
+                elif opcional == '--conexoes':
+                    path_conexoes = sys.argv[i_argv+1]
+                    i_argv += 2
                 else:
                     print('Parametro opcional invalido: {}'.format(opcional))
                     i_argv += 1
@@ -218,8 +275,10 @@ def main():
                  nivel, 
                  output_path, 
                  csv=csv, colunas_csv=config.COLUNAS_CSV, csv_sep=config.SEP_CSV,
+                 graphml=graphml,
                  gexf=gexf,
-                 viz=viz)
+                 viz=viz,
+                 path_conexoes=path_conexoes)
 
 if __name__ == '__main__':
     main()
