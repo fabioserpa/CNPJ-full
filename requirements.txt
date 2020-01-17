@@ -2,3 +2,4 @@ pandas
 numpy
 numexpr
 python-dotenv
+networkx
