@@ -38,14 +38,13 @@ A versão mais atual. Se estiver usando Python3:
 
 Esse comando instalará as seguintes bibliotecas:
 
-#### Pandas
-A versão mais atual da biblioteca [Pandas](https://pandas.pydata.org) para Python. 
+Nome | Descrição
+-----| ----------
+Pandas | A versão mais atual da biblioteca [Pandas](https://pandas.pydata.org) para Python.
+NumPy | A princípio, não é necessário. O script neste repositório usa funções da biblioteca [Pandas](https://pandas.pydata.org), que utiliza uma extensão de NumPy chamada [NumExpr](#numexpr). Então, **caso** seu terminal retorne erros por ausência do pacote [NumPy](https://pypi.org/project/numpy/), esse é o motivo.
+NumExpr | O [Pandas](https://pandas.pydata.org) usa. É uma extensão que melhora a velocidade de análise no pacote [NumPy](#pacote-numpy).
+Networkx | Pacote de criação, manipulação e análise de grafos/redes. É **IMPRESCINDÍVEL** a criação do banco SqLite e gerar os índices mais importantes.
 
-#### NumPy
-A princípio, não é necessário. O script neste repositório usa funções da biblioteca [Pandas](https://pandas.pydata.org), que utiliza uma extensão de NumPy chamada [NumExpr](#numexpr). Então, **caso** seu terminal retorne erros por ausência do pacote [NumPy](https://pypi.org/project/numpy/), esse é o motivo. 
-
-#### NumExpr
-O [Pandas](https://pandas.pydata.org) usa. É uma extensão que melhora a velocidade de análise no pacote [NumPy](#pacote-numpy).
 
 
 ## Antes de executar
