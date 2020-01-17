@@ -19,10 +19,12 @@ ou
 ## Configurações prévias
 Para executar o script, é necessário que seu sistema contenha essas instalações:
 
-## Python
+## Python 3
 Versão mais atual, caso não consiga executar usando somente o comando `python`. Para isso, execute no terminal (se estiver usando sistemas GNU/Linux derivados do Debian):
 
-` $ sudo apt upgrade python3`
+* ` $ sudo apt upgrade python3`
+* ` $ sudo apt install python3-pip`
+
 
 ## Gerenciador de Pacotes do Python (Pip)
 A versão mais atual. Se estiver usando Python3:
@@ -31,7 +33,7 @@ A versão mais atual. Se estiver usando Python3:
 
 ## Instalar Pré-Requisitos:
 
-`$ pip install -r requirements.txt`
+`$ pip3 install -r requirements.txt`
 
 Esse comando instalará as seguintes bibliotecas:
 
