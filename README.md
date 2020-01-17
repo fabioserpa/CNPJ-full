@@ -4,6 +4,8 @@ Possibilita também fazer consultas de empresas ou sócios e gravar resultados e
 
 ![Grafo](img/grafo.png?raw=true "Grafo")
 
+# Conversão para CSV ou SQLITE
+
 **ATENÇÃO**:
 
 A **forma recomendada** de fazer a carga atualmente é: salvar os múltiplos arquivos zip em uma pasta dedicada e executar:
@@ -14,7 +16,6 @@ ou
 
 `python3 cnpj.py PASTA_COM_ZIPS csv PASTA_DE_SAIDA --dir`
 
-# Conversão para CSV ou SQLITE
 
 ## Configurações prévias
 Para executar o script, é necessário que seu sistema contenha essas instalações:
