@@ -159,7 +159,8 @@ Uso: `python consulta.py <tipo consulta> <item|arquivo input> <caminho output> [
  `--viz`: Para gerar um HTML interativo com o resultado em grafo.
           Para abrir automaticamente o navegador, informar o `PATH_NAVEGADOR` 
           no `config.py`. Do contrário, basta abrir o arquivo `grafo.html` gerado 
-          em `<caminho output>` com o navegador de preferência.
+          em `<caminho output>` com o navegador de preferência. Procure usar o 
+          Google Chrome para ter acesso a todos os recursos.
 
 #### Exemplos:
 
