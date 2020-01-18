@@ -4,6 +4,8 @@ Possibilita também fazer consultas de empresas ou sócios e gravar resultados e
 
 ![Grafo](img/grafo.png?raw=true "Grafo")
 
+# Conversão para CSV ou SQLITE
+
 **ATENÇÃO**:
 
 A **forma recomendada** de fazer a carga atualmente é: salvar os múltiplos arquivos zip em uma pasta dedicada e executar:
@@ -14,15 +16,16 @@ ou
 
 `python3 cnpj.py PASTA_COM_ZIPS csv PASTA_DE_SAIDA --dir`
 
-# Conversão para CSV ou SQLITE
 
 ## Configurações prévias
 Para executar o script, é necessário que seu sistema contenha essas instalações:
 
-## Python
+## Python 3
 Versão mais atual, caso não consiga executar usando somente o comando `python`. Para isso, execute no terminal (se estiver usando sistemas GNU/Linux derivados do Debian):
 
-` $ sudo apt upgrade python3`
+* ` $ sudo apt upgrade python3`
+* ` $ sudo apt install python3-pip`
+
 
 ## Gerenciador de Pacotes do Python (Pip)
 A versão mais atual. Se estiver usando Python3:
@@ -31,18 +34,17 @@ A versão mais atual. Se estiver usando Python3:
 
 ## Instalar Pré-Requisitos:
 
-`$ pip install -r requirements.txt`
+`$ pip3 install -r requirements.txt`
 
 Esse comando instalará as seguintes bibliotecas:
 
-#### Pandas
-A versão mais atual da biblioteca [Pandas](https://pandas.pydata.org) para Python. 
+Nome | Descrição
+-----| ----------
+Pandas | A versão mais atual da biblioteca [Pandas](https://pandas.pydata.org) para Python.
+NumPy | A princípio, não é necessário. O script neste repositório usa funções da biblioteca [Pandas](https://pandas.pydata.org), que utiliza uma extensão de NumPy chamada [NumExpr](#numexpr). Então, **caso** seu terminal retorne erros por ausência do pacote [NumPy](https://pypi.org/project/numpy/), esse é o motivo.
+NumExpr | O [Pandas](https://pandas.pydata.org) usa. É uma extensão que melhora a velocidade de análise no pacote [NumPy](#pacote-numpy).
+Networkx | Pacote de criação, manipulação e análise de grafos/redes. É **IMPRESCINDÍVEL** a criação do banco SqLite e gerar os índices mais importantes.
 
-#### NumPy
-A princípio, não é necessário. O script neste repositório usa funções da biblioteca [Pandas](https://pandas.pydata.org), que utiliza uma extensão de NumPy chamada [NumExpr](#numexpr). Então, **caso** seu terminal retorne erros por ausência do pacote [NumPy](https://pypi.org/project/numpy/), esse é o motivo. 
-
-#### NumExpr
-O [Pandas](https://pandas.pydata.org) usa. É uma extensão que melhora a velocidade de análise no pacote [NumPy](#pacote-numpy).
 
 
 ## Antes de executar
@@ -157,7 +159,8 @@ Uso: `python consulta.py <tipo consulta> <item|arquivo input> <caminho output> [
  `--viz`: Para gerar um HTML interativo com o resultado em grafo.
           Para abrir automaticamente o navegador, informar o `PATH_NAVEGADOR` 
           no `config.py`. Do contrário, basta abrir o arquivo `grafo.html` gerado 
-          em `<caminho output>` com o navegador de preferência.
+          em `<caminho output>` com o navegador de preferência. Procure usar o 
+          Google Chrome para ter acesso a todos os recursos.
 
 #### Exemplos:
 
