@@ -16,19 +16,25 @@ jobs:
           paths:
              - .
 
+  bash:
+    <<: *defaults
+    steps:
+      - run: /bin/bash
+
   get-cnpj-data:
     <<: *defaults
     steps:
-     - run:
-        name: Get and Parse CNPJ Data
-        command: get_cnpj_data.sh links
+      - run: ls -lart
+      - run:
+          name: Get and Parse CNPJ Data
+          command: /tmp/persist_to_workspace/get_cnpj_data.sh /tmp/persist_to_workspace/links
   
-  data_to_csv:
+  data-to-csv:
     <<: *defaults
     steps:
       - run:
           name: Convert CNPJ Data to CSV
-          command: cnpj_data_to_csv.sh
+          command: /tmp/persist_to_workspace/cnpj_data_to_csv.sh
 
   feed-to-es:
     <<: *defaults
@@ -40,11 +46,16 @@ workflows:
   version: 2.1
   workflow-project:
     jobs:
+      - bash:
+          context: GitJMSeguradora
+          filters:
+            branches:
+              only: feat/circleci
       - checkout:
           context: GitJMSeguradora
-        filters:
-          branches:
-            only: feat/circleci
+          filters:
+            branches:
+              only: feat/circleci
       - get-cnpj-data:
           context: GitJMSeguradora
           requires:
@@ -52,17 +63,17 @@ workflows:
           filters:
             branches:
               only: feat/circleci
-      - data_to_csv:
+      - data-to-csv:
           context: GitJMSeguradora
           requires:
-            - get_cnpj_data
+            - get-cnpj-data
           filters:
             branches:
               only: feat/circleci
       - feed-to-es:
           context: GitJMSeguradora
           requires:
-            - data_to_csv
+            - data-to-csv
           filters:
             branches:
               only: feat/circleci
