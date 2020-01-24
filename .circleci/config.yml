@@ -18,14 +18,18 @@ jobs:
 
   get-cnpj-data:
     <<: *defaults
+    parameters:
+      links:
+        description: File containing downloadable links
+        type: string
     steps:
       - attach_workspace:
           at: /tmp/persist_to_workspace
       - run: ls -lart
       - run:
           name: Get and Parse CNPJ Data
-          command: ./get_cnpj_data.sh links
-          no_output_timeout: 30m
+          command: ./get_cnpj_data.sh << parameters.links >>
+          no_output_timeout: 90m
       - persist_to_workspace:
           root: /tmp/persist_to_workspace
           paths:
@@ -51,8 +55,8 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/persist_to_workspace
-      - run: ls -l /tmp/cnpj_csv
-      - run: echo "feed CSV to ElasticSearch"
+      - run: ls -l /tmp/persist_to_workspace/csv
+      - run: python csv2es.py $ES_URL
   
 workflows:
   version: 2.1
@@ -63,17 +67,58 @@ workflows:
           filters:
             branches:
               only: feat/circleci
+  
       - get-cnpj-data:
+          name: get-cnpj-data-1
           context: GitJMSeguradora
+          links: data_links/links_1
           requires:
             - checkout
           filters:
             branches:
               only: feat/circleci
+      - get-cnpj-data:
+          name: get-cnpj-data-2
+          context: GitJMSeguradora
+          links: data_links/links_2
+          requires:
+            - checkout
+          filters:
+            branches:
+              only: feat/circleci
+      # - get-cnpj-data:
+      #   name: get-cnpj-data-3
+      #   context: GitJMSeguradora
+      #   links: data_links/links_3
+      #   requires:
+      #     - checkout
+      #   filters:
+      #     branches:
+      #       only: feat/circleci
+      # - get-cnpj-data:
+      #   name: get-cnpj-data-4
+      #   context: GitJMSeguradora
+      #   links: data_links/links_4
+      #   requires:
+      #     - checkout
+      #   filters:
+      #     branches:
+      #       only: feat/circleci
+      # - get-cnpj-data:
+      #   name: get-cnpj-data-5
+      #   context: GitJMSeguradora
+      #   links: data_links/links_5
+      #   requires:
+      #     - checkout
+      #   filters:
+      #     branches:
+      #       only: feat/circleci
+
       - data-to-csv:
           context: GitJMSeguradora
           requires:
-            - get-cnpj-data
+            - get-cnpj-data-1
+            - get-cnpj-data-2
           filters:
             branches:
               only: feat/circleci
