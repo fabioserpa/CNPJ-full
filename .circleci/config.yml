@@ -16,29 +16,41 @@ jobs:
           paths:
              - .
 
-  bash:
-    <<: *defaults
-    steps:
-      - run: /bin/bash
-
   get-cnpj-data:
     <<: *defaults
     steps:
+      - attach_workspace:
+          at: /tmp/persist_to_workspace
       - run: ls -lart
       - run:
           name: Get and Parse CNPJ Data
-          command: /tmp/persist_to_workspace/get_cnpj_data.sh /tmp/persist_to_workspace/links
+          command: ./get_cnpj_data.sh links
+          no_output_timeout: 30m
+      - persist_to_workspace:
+          root: /tmp/persist_to_workspace
+          paths:
+            - .
   
   data-to-csv:
     <<: *defaults
     steps:
+      - attach_workspace:
+          at: /tmp/persist_to_workspace
+      - run: ls -lart
       - run:
           name: Convert CNPJ Data to CSV
-          command: /tmp/persist_to_workspace/cnpj_data_to_csv.sh
+          command: ./cnpj_data_to_csv.sh
+          no_output_timeout: 30m
+      - persist_to_workspace:
+          root: /tmp/persist_to_workspace
+          paths:
+            - .
 
   feed-to-es:
     <<: *defaults
     steps:
+      - attach_workspace:
+          at: /tmp/persist_to_workspace
       - run: ls -l /tmp/cnpj_csv
       - run: echo "feed CSV to ElasticSearch"
   
@@ -46,11 +58,6 @@ workflows:
   version: 2.1
   workflow-project:
     jobs:
-      - bash:
-          context: GitJMSeguradora
-          filters:
-            branches:
-              only: feat/circleci
       - checkout:
           context: GitJMSeguradora
           filters:

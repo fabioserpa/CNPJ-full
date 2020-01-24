@@ -1,2 +1,2 @@
 #!/bin/bash
-python3 /tmp/persist_to_workspace/src/cnpj.py "/tmp/cnpj_data" csv "/tmp/cnpj_csv" --dir
+python3 src/cnpj.py "/tmp/persist_to_workspace/data" csv "/tmp/persist_to_workspace/csv" --dir
