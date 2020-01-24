@@ -1,0 +1,68 @@
+version: 2.1
+defaults: &defaults
+  working_directory: /tmp/persist_to_workspace
+  docker:
+    - image: juntoseguros/devops:python
+
+jobs:
+  checkout:
+    <<: *defaults
+    steps:
+      - checkout
+      - run: pwd
+      - run: ls -lart
+      - persist_to_workspace:
+          root: /tmp/persist_to_workspace
+          paths:
+             - .
+
+  get-cnpj-data:
+    <<: *defaults
+    steps:
+     - run:
+        name: Get and Parse CNPJ Data
+        command: get_cnpj_data.sh links
+  
+  data_to_csv:
+    <<: *defaults
+    steps:
+      - run:
+          name: Convert CNPJ Data to CSV
+          command: cnpj_data_to_csv.sh
+
+  feed-to-es:
+    <<: *defaults
+    steps:
+      - run: ls -l /tmp/cnpj_csv
+      - run: echo "feed CSV to ElasticSearch"
+  
+workflows:
+  version: 2.1
+  workflow-project:
+    jobs:
+      - checkout:
+          context: GitJMSeguradora
+        filters:
+          branches:
+            only: feat/circleci
+      - get-cnpj-data:
+          context: GitJMSeguradora
+          requires:
+            - checkout
+          filters:
+            branches:
+              only: feat/circleci
+      - data_to_csv:
+          context: GitJMSeguradora
+          requires:
+            - get_cnpj_data
+          filters:
+            branches:
+              only: feat/circleci
+      - feed-to-es:
+          context: GitJMSeguradora
+          requires:
+            - data_to_csv
+          filters:
+            branches:
+              only: feat/circleci
