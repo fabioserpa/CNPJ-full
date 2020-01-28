@@ -2,6 +2,7 @@ version: 2.1
 
 parameters:
   version:
+    default: '2019_4'
     type: string
     description: Sufix for the ElasticSearch index
 
@@ -28,6 +29,11 @@ jobs:
       - attach_workspace:
           at: /tmp/persist_to_workspace
       - run: echo "check and download s3 for CSVs"
+      - run: ./get_csv_s3.sh << pipeline.parameters.version >>
+      - persist_to_workspace:
+          root: /tmp/persist_to_workspace
+          paths:
+            - .
 
   get-cnpj-data:
     <<: *defaults
@@ -38,7 +44,10 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/persist_to_workspace
+      - when:
+          condition: 
       - run: ls -lart
+      - run: if [ -f s3.lock ]; then circleci step halt; fi
       - run:
           name: Get and Parse CNPJ Data
           command: ./get_cnpj_data.sh << parameters.links >>
@@ -53,10 +62,11 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/persist_to_workspace
-      - run: ls -lah ./data
+      - run: ls -lah ./data || true
+      - run: if [ -f s3.lock ]; then circleci step halt; fi
       - run:
           name: Convert CNPJ Data to CSV
-          command: ./cnpj_data_to_csv.sh
+          command: ./cnpj_data_to_csv.sh << pipeline.parameters.version >>
           no_output_timeout: 30m
       - persist_to_workspace:
           root: /tmp/persist_to_workspace
@@ -69,7 +79,7 @@ jobs:
       - attach_workspace:
           at: /tmp/persist_to_workspace
       - run: ls -lah /tmp/persist_to_workspace/csv
-      - run: python csv2es.py << parameters.version >> $ES_URL 
+      - run: python csv2es.py << pipeline.parameters.version >> $ES_URL
   
 workflows:
   version: 2.1
@@ -80,6 +90,14 @@ workflows:
           filters:
             branches:
               only: feat/circleci
+
+      - get-csv-s3:
+          context: GitJMSeguradora
+          requires:
+            - checkout
+          filters:
+            branches:
+              only: feat/circleci
   
       - get-cnpj-data:
           name: get-cnpj-data-1
@@ -87,6 +105,7 @@ workflows:
           links: data_links/links_1
           requires:
             - checkout
+            - get-csv-s3
           filters:
             branches:
               only: feat/circleci
@@ -96,6 +115,7 @@ workflows:
           links: data_links/links_2
           requires:
             - checkout
+            - get-csv-s3
           filters:
             branches:
               only: feat/circleci
@@ -126,7 +146,6 @@ workflows:
       #   filters:
       #     branches:
       #       only: feat/circleci
-
       - data-to-csv:
           context: GitJMSeguradora
           requires:
@@ -139,6 +158,8 @@ workflows:
           context: GitJMSeguradora
           requires:
             - data-to-csv
+            - get-csv-s3
           filters:
             branches:
               only: feat/circleci
+
