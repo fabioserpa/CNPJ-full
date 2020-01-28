@@ -1,4 +1,10 @@
 version: 2.1
+
+parameters:
+  version:
+    type: string
+    description: Sufix for the ElasticSearch index
+
 defaults: &defaults
   working_directory: /tmp/persist_to_workspace
   docker:
@@ -15,6 +21,13 @@ jobs:
           root: /tmp/persist_to_workspace
           paths:
              - .
+
+  get-csv-s3:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: /tmp/persist_to_workspace
+      - run: echo "check and download s3 for CSVs"
 
   get-cnpj-data:
     <<: *defaults
@@ -40,7 +53,7 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/persist_to_workspace
-      - run: ls -lart
+      - run: ls -lah ./data
       - run:
           name: Convert CNPJ Data to CSV
           command: ./cnpj_data_to_csv.sh
@@ -55,8 +68,8 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/persist_to_workspace
-      - run: ls -l /tmp/persist_to_workspace/csv
-      - run: python csv2es.py $ES_URL
+      - run: ls -lah /tmp/persist_to_workspace/csv
+      - run: python csv2es.py << parameters.version >> $ES_URL 
   
 workflows:
   version: 2.1
