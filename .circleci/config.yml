@@ -33,7 +33,7 @@ jobs:
       - persist_to_workspace:
           root: /tmp/persist_to_workspace
           paths:
-            - .
+            - ./data
   
   data-to-csv:
     <<: *defaults
@@ -48,7 +48,7 @@ jobs:
       - persist_to_workspace:
           root: /tmp/persist_to_workspace
           paths:
-            - .
+            - ./csv
 
   feed-to-es:
     <<: *defaults
