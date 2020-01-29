@@ -189,9 +189,13 @@ workflows:
           requires:
             - get-cnpj-data-1
             - get-cnpj-data-2
+            - get-cnpj-data-3
+            - get-cnpj-data-4
+            - get-cnpj-data-5
           filters:
             branches:
               only: master
+
       - csv-to-s3:
           context: GitJMSeguradora
           requires:
