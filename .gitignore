@@ -1,3 +1,7 @@
 .idea*
 __pycache__/
 .env
+*venv*
+data/
+csv/
+.vscode

@@ -1,15 +1,31 @@
 version: 2.1
 
+defaults: &defaults
+  working_directory: /tmp/persist_to_workspace
+  docker:
+    - image: juntoseguros/devops:python
+
 parameters:
   version:
     default: '2019_4'
     type: string
     description: Sufix for the ElasticSearch index
+  s3-csv-lockfile:
+    default: 's3-csv.lock'
+    type: string
+    description: Default name for Lockfile
 
-defaults: &defaults
-  working_directory: /tmp/persist_to_workspace
-  docker:
-    - image: juntoseguros/devops:python
+commands:
+  lockfile-halt:
+    description: "Halt if lockfile file exists"
+    parameters:
+      lockfile:
+        type: string
+        default: << pipeline.parameters.s3-csv-lockfile >>
+    steps:
+      - run:
+          name: Halt if lockfile '<< parameters.lockfile >>' exists
+          command: if [ -f << parameters.lockfile >> ]; then circleci step halt; fi
 
 jobs:
   checkout:
@@ -28,8 +44,9 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/persist_to_workspace
-      - run: echo "check and download s3 for CSVs"
-      - run: ./get_csv_s3.sh << pipeline.parameters.version >>
+      - run: 
+          name: Get CSV from S3
+          command: ./.circleci/workflows/get-csv-s3.sh << pipeline.parameters.version >> << pipeline.parameters.s3-csv-lockfile >>
       - persist_to_workspace:
           root: /tmp/persist_to_workspace
           paths:
@@ -44,13 +61,13 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/persist_to_workspace
-      - when:
-          condition: 
-      - run: ls -lart
-      - run: if [ -f s3.lock ]; then circleci step halt; fi
+      - run: 
+          name: List all workspace files
+          command: ls -lart
+      - lockfile-halt
       - run:
-          name: Get and Parse CNPJ Data
-          command: ./get_cnpj_data.sh << parameters.links >>
+          name: Get CNPJ Data
+          command: ./.circleci/workflows/get-cnpj-data.sh << parameters.links >>
           no_output_timeout: 90m
       - persist_to_workspace:
           root: /tmp/persist_to_workspace
@@ -62,27 +79,44 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/persist_to_workspace
-      - run: ls -lah ./data || true
-      - run: if [ -f s3.lock ]; then circleci step halt; fi
+      - run:
+          name: List all Data files
+          command: ls -lah ./data || true
+      - lockfile-halt
       - run:
           name: Convert CNPJ Data to CSV
-          command: ./cnpj_data_to_csv.sh << pipeline.parameters.version >>
+          command: ./.circleci/workflows/data2csv.sh
           no_output_timeout: 30m
       - persist_to_workspace:
           root: /tmp/persist_to_workspace
           paths:
             - ./csv
 
+  csv-to-s3:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: /tmp/persist_to_workspace
+      - lockfile-halt
+      - run:
+          name: CSV to S3
+          command: ./.circleci/workflows/csv2s3.sh << pipeline.parameters.version >>
+          no_output_timeout: 30m
+
   feed-to-es:
     <<: *defaults
     steps:
       - attach_workspace:
           at: /tmp/persist_to_workspace
-      - run: ls -lah /tmp/persist_to_workspace/csv
-      - run: python csv2es.py << pipeline.parameters.version >> $ES_URL
+      - run:
+          name: List all CSV files
+          command: ls -lah /tmp/persist_to_workspace/csv
+      - run:
+          name: Publish data to ElasticSearch
+          command: python3 csv2es.py << pipeline.parameters.version >> $ES_URL
+          no_output_timeout: 30m
   
 workflows:
-  version: 2.1
   workflow-project:
     jobs:
       - checkout:
@@ -119,33 +153,37 @@ workflows:
           filters:
             branches:
               only: feat/circleci
-      # - get-cnpj-data:
-      #   name: get-cnpj-data-3
-      #   context: GitJMSeguradora
-      #   links: data_links/links_3
-      #   requires:
-      #     - checkout
-      #   filters:
-      #     branches:
-      #       only: feat/circleci
-      # - get-cnpj-data:
-      #   name: get-cnpj-data-4
-      #   context: GitJMSeguradora
-      #   links: data_links/links_4
-      #   requires:
-      #     - checkout
-      #   filters:
-      #     branches:
-      #       only: feat/circleci
-      # - get-cnpj-data:
-      #   name: get-cnpj-data-5
-      #   context: GitJMSeguradora
-      #   links: data_links/links_5
-      #   requires:
-      #     - checkout
-      #   filters:
-      #     branches:
-      #       only: feat/circleci
+      - get-cnpj-data:
+          name: get-cnpj-data-3
+          context: GitJMSeguradora
+          links: data_links/links_3
+          requires:
+            - checkout
+            - get-csv-s3
+          filters:
+            branches:
+              only: feat/circleci
+      - get-cnpj-data:
+          name: get-cnpj-data-4
+          context: GitJMSeguradora
+          links: data_links/links_4
+          requires:
+            - checkout
+            - get-csv-s3
+          filters:
+            branches:
+              only: feat/circleci
+      - get-cnpj-data:
+          name: get-cnpj-data-5
+          context: GitJMSeguradora
+          links: data_links/links_5
+          requires:
+            - checkout
+            - get-csv-s3
+          filters:
+            branches:
+              only: feat/circleci
+
       - data-to-csv:
           context: GitJMSeguradora
           requires:
@@ -154,6 +192,11 @@ workflows:
           filters:
             branches:
               only: feat/circleci
+      - csv-to-s3:
+          context: GitJMSeguradora
+          requires:
+            - data-to-csv
+            - get-csv-s3
       - feed-to-es:
           context: GitJMSeguradora
           requires:

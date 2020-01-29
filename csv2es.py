@@ -1,9 +1,15 @@
 import argparse
 import csv
 import json
-from elasticsearch import Elasticsearch
+import os
+from elasticsearch import Elasticsearch, Urllib3HttpConnection
 from elasticsearch.helpers import parallel_bulk, bulk
 
+class MyUrllib3HttpConnection(Urllib3HttpConnection):
+    def __init__(self, *args, **kwargs):
+        extra_headers = kwargs.pop('extra_headers', {})
+        super(MyUrllib3HttpConnection, self).__init__(*args, **kwargs)
+        self.headers.update(extra_headers)
 
 def prepare_docs(es, index, filename, id=None, delimiter=','):
   """
@@ -54,7 +60,11 @@ def cli():
     port=args.elasticsearch_port,
     use_ssl=True,
     verify_certs=False,
-    ssl_show_warn=False
+    ssl_show_warn=False,
+    connection_class=MyUrllib3HttpConnection,
+    extra_headers={
+      os.environ['API_KEY_ID']: os.environ['API_KEY']
+    }
   )
 
   index_tpl = '{name}_{version}'
@@ -78,6 +88,7 @@ def cli():
             filename='{}/{}'.format(args.files_dir, 'socios.csv')
           )
   publish_to_es(es, socios, args.docs_per_chunk)
+
 
 if __name__ == "__main__":
     cli()
