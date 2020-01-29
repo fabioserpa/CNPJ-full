@@ -49,7 +49,7 @@ def cli():
                     help='Elastic Search Endpoint Port')
   parser.add_argument('--files_dir', default='csv',
                     help='Directory where empresas.csv, socios.csv and cnaes_secundarias.csv are stored')
-  parser.add_argument('--docs_per_chunk', type=int, default=500,
+  parser.add_argument('--docs_per_chunk', type=int, default=3000,
                     help='Number of documents uploaded in each bulk operation')
   args = parser.parse_args()
 

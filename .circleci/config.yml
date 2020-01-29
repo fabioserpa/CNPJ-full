@@ -114,7 +114,7 @@ jobs:
       - run:
           name: Publish data to ElasticSearch
           command: python3 csv2es.py << pipeline.parameters.version >> $ES_URL
-          no_output_timeout: 30m
+          no_output_timeout: 2h
   
 workflows:
   workflow-project:
@@ -123,7 +123,7 @@ workflows:
           context: GitJMSeguradora
           filters:
             branches:
-              only: feat/circleci
+              only: master
 
       - get-csv-s3:
           context: GitJMSeguradora
@@ -131,7 +131,7 @@ workflows:
             - checkout
           filters:
             branches:
-              only: feat/circleci
+              only: master
   
       - get-cnpj-data:
           name: get-cnpj-data-1
@@ -142,7 +142,7 @@ workflows:
             - get-csv-s3
           filters:
             branches:
-              only: feat/circleci
+              only: master
       - get-cnpj-data:
           name: get-cnpj-data-2
           context: GitJMSeguradora
@@ -152,7 +152,7 @@ workflows:
             - get-csv-s3
           filters:
             branches:
-              only: feat/circleci
+              only: master
       - get-cnpj-data:
           name: get-cnpj-data-3
           context: GitJMSeguradora
@@ -162,7 +162,7 @@ workflows:
             - get-csv-s3
           filters:
             branches:
-              only: feat/circleci
+              only: master
       - get-cnpj-data:
           name: get-cnpj-data-4
           context: GitJMSeguradora
@@ -172,7 +172,7 @@ workflows:
             - get-csv-s3
           filters:
             branches:
-              only: feat/circleci
+              only: master
       - get-cnpj-data:
           name: get-cnpj-data-5
           context: GitJMSeguradora
@@ -182,7 +182,7 @@ workflows:
             - get-csv-s3
           filters:
             branches:
-              only: feat/circleci
+              only: master
 
       - data-to-csv:
           context: GitJMSeguradora
@@ -191,7 +191,7 @@ workflows:
             - get-cnpj-data-2
           filters:
             branches:
-              only: feat/circleci
+              only: master
       - csv-to-s3:
           context: GitJMSeguradora
           requires:
@@ -204,5 +204,5 @@ workflows:
             - get-csv-s3
           filters:
             branches:
-              only: feat/circleci
+              only: master
 
