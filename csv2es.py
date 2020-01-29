@@ -53,8 +53,13 @@ def cli():
                     help='Number of documents uploaded in each bulk operation')
   args = parser.parse_args()
 
+  if os.environ.get('API_KEY_ID', None) is None:
+    raise KeyError("Environment Variable 'API_KEY_ID' not found")
+
+  if os.environ.get('API_KEY', None) is None:
+    raise KeyError("Environment Variable 'API_KEY' not found")
+
   print("Version {}".format(args.index_sufix))
-  print("Using {} port {}".format(args.elasticsearch_url, args.elasticsearch_port))
   es = Elasticsearch(
     [args.elasticsearch_url],
     port=args.elasticsearch_port,
@@ -63,7 +68,7 @@ def cli():
     ssl_show_warn=False,
     connection_class=MyUrllib3HttpConnection,
     extra_headers={
-      os.environ['API_KEY_ID']: os.environ['API_KEY']
+      os.environ.get('API_KEY_ID'): os.environ.get('API_KEY')
     }
   )
 
