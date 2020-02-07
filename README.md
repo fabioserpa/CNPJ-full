@@ -200,3 +200,26 @@ E dessa forma você pode também usar o grafo gerado (atributo "G" da classe) pa
 ## TO DO
 
 * Aprimorar a documentação do código (principalmente da classe RedeCNPJ) e as instruções neste README.
+
+
+### Usando a aplicação com o docker
+
+##### Pré requisitos:
+
+* Instalar docker;
+* Instalar docker-compose;
+
+
+##### Configurando a aplicação:
+
+* Abra o arquivo `docker-compose.yml` e configure as váriaveis de ambiente;
+
+        environment:
+          INPUT_PATH: data/DADOS_ABERTOS_CNPJ.zip
+          TYPE_OUTPUT: sqlite
+          OUTPUT_PATH: database
+          NO_INDEX: 0
+          
+* Para executar a aplicação execute o comando:
+
+        docker-compose up --build
