@@ -7,6 +7,6 @@ services:
     image: python/cnpj-full
     build:
       context: .
-      dockerfile: docker/Dockerfile
+      dockerfile: docker/python/Dockerfile
     volumes:
       - ./app:/app
