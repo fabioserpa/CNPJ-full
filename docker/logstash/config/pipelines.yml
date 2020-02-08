@@ -1,0 +1,2 @@
+- pipeline.id: empresas
+  path.config: /usr/share/logstash/pipeline/empresas.conf
