@@ -1,0 +1,17 @@
+version: '3.7'
+
+services:
+  cnpj-full:
+    container_name: cnpj-full
+    hostname: cnpj-full
+    image: python/cnpj-full
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    environment:
+      INPUT_PATH: data/DADOS_ABERTOS_CNPJ.zip
+      TYPE_OUTPUT: sqlite
+      OUTPUT_PATH: database
+      NO_INDEX: 0
+    volumes:
+      - ./app:/app

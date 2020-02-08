@@ -1,3 +1,10 @@
-.idea*
+.idea
 __pycache__/
 .env
+
+app/data/
+!app/data/.gitkeep
+
+app/database/
+!app/database/.gitkeep
+

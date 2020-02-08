@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<!-- Adaptado de: http://bl.ocks.org/fancellu/2c782394602a93921faff74e594d1bb1 
+     GNU General Public License, version 3. -->
+<html lang="en" encoding="utf-8">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        html {
+          font-family: sans-serif, verdana;
+          font-size: 12px;
+        }
+
+        html, body { margin:0; padding:0; overflow:hidden }
+        svg { height:100%; width:100% }
+
+        .node { font-size: 10px; opacity: .8; cursor: pointer;}
+
+        .link { stroke: #999; stroke-opacity: .5; stroke-width: 1px; }
+
+        #liga_desliga {
+            float: right;
+            padding-right: 10px;
+            padding-top: 3px;
+        }
+
+        #liga_desliga input {
+            vertical-align: middle;
+            position: relative;
+            bottom: 1px;
+        }
+
+        #liga_desliga label {
+            padding-left: 10px;
+        }
+
+        div.tooltip {
+          color: white;
+          position: absolute;
+          text-align: left;
+          width: 380px;
+          height: auto;
+          padding: 10px;
+          font-family: sans-serif,verdana;
+          font-size: 12px;
+          background: #212121;
+          border: 0px;
+          border-radius: 2px;
+          pointer-events: none;
+          z-index: 10;
+          box-shadow: 3px 3px 1px #aaaaaa;
+        }
+
+    </style>
+</head>
+<body>
+<div id="liga_desliga">Exibir rótulos de: 
+    <label><input type="checkbox" checked="1" onClick="nodeLabel_OnOff();" />Empresas/Sócios</label>
+    <label><input type="checkbox" onClick="edgeLabel_OnOff();" />Vínculos</label>
+</div>
+<svg width="1200" height="700"></svg>
+
+<script src="http://d3js.org/d3.v4.min.js" type="text/javascript"></script>
+<script src="http://d3js.org/d3-selection-multi.v1.js"></script>
+
+<script type="application/json" id="grafo">
+    <!--GRAFO-->
+</script>
+
+<script type="text/javascript">
+    var mapMatrizFilial = {"1":"Matriz",
+                           "2":"Filial"};
+
+    var mapSituacao = {"01":"Nula",
+                        "02":"Ativa",
+                        "03":"Suspensa",
+                        "04":"Inapta",
+                        "08":"Baixada"};
+
+    function converteData(data) {
+        if (data.length == 8) {
+            return data.replace( /(\d{4})(\d{2})(\d{2})/, "$3/$2/$1");
+        } else {
+            return data;
+        }
+    }
+
+    var tooltip = d3.select("body")
+        .append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+
+    var svg = d3.select("svg"),
+        width = +svg.attr("width"),
+        height = +svg.attr("height"),
+        node,
+        link;
+
+    svg.append('defs').append('marker')
+        .attrs({'id':'arrowhead',
+            'viewBox':'-0 -5 10 10',
+            'refX':18,
+            'refY':0,
+            'orient':'auto',
+            'markerWidth':10,
+            'markerHeight':9,
+            'xoverflow':'visible'})
+        .append('svg:path')
+        .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
+        .attr('fill', '#999')
+        .style('stroke','none');
+
+    var simulation = d3.forceSimulation()
+        .force("link", d3.forceLink().id(function (d) {return d.id;}).distance(100).strength(1))
+        .force("charge", d3.forceManyBody())
+        .force("center", d3.forceCenter(width / 2, height / 2));
+
+    var exibeRotuloNo = false;
+    var exibeRotuloVinculo = false;
+
+    function update(links, nodes) {
+
+        link = svg.selectAll(".link")
+            .data(links)
+            .enter()
+            .append("line")
+            .attr("class", "link")
+            .attr("stroke-dasharray", function (d,i) {
+                if (d.tipo == 'filial') {return '5,5';}
+                else {return '0';}
+            })
+            .attr('marker-end','url(#arrowhead)')
+
+        edgepaths = svg.selectAll(".edgepath")
+            .data(links)
+            .enter()
+            .append('path')
+            .attrs({
+                'class': 'edgepath',
+                'fill-opacity': 0,
+                'stroke-opacity': 0,
+                'id': function (d, i) {return 'edgepath' + i}
+            })
+            .style("pointer-events", "none");
+
+        edgelabels = svg.selectAll(".edgelabel")
+            .data(links)
+            .enter()
+            .append('text')
+            .style("pointer-events", "none")
+            .attrs({
+                'class': 'edgelabel',
+                'id': function (d, i) {return 'edgelabel' + i},
+                'font-size': 10,
+                'fill': '#aaa'
+            });
+
+        node = svg.selectAll(".node")
+            .data(nodes)
+            .enter()
+            .append("g")
+            .attr("class", "node")
+            .call(d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+            );
+
+        node.append("circle")
+            .attr("r", 8)
+            .style("fill", function (d, i) {
+            	if (d.tipo_pessoa == 1) { return '#01579B'; }
+            	else if (d.tipo_pessoa == 2) { return '#2E7D32'; }
+                else { return '#3A3A3A'; }
+            })
+            .style("stroke", function (d, i) {
+                if (d.nivel == 0) { return '#EE0000'; }
+            })
+            .style("stroke-width", function (d, i) {
+                if (d.nivel == 0) { return 2; }
+            })
+            .style("fill-opacity", function (d,i) {
+                if ((d.tipo_pessoa == 1) && (d.situacao != '02')) { return 0.4; }
+                else { return 1.0; }
+            })
+
+        node
+            .on("mouseover", tooltipDetalhe_On)
+            .on("mouseout", tooltipDetalhe_Off);
+
+        simulation
+            .nodes(nodes)
+            .on("tick", ticked);
+
+        simulation.force("link")
+            .links(links);
+    }
+
+    function nodeLabel_OnOff() {
+        exibeRotuloNo = !exibeRotuloNo;
+        if (exibeRotuloNo) {
+            nodeLabel_On();
+        } else {
+            nodeLabel_Off();
+        }
+    }
+
+    function edgeLabel_OnOff() {
+        exibeRotuloVinculo = !exibeRotuloVinculo;
+        if (exibeRotuloVinculo) {
+            edgeLabel_On();
+        } else {
+            edgeLabel_Off();
+        }
+    }
+
+    function nodeLabel_On() {
+        node = svg.selectAll(".node");
+
+        node.append("text")
+            .attr("dy", -5)
+            .attr("dx",  7)
+            .text(function (d) {return d.nome;});        
+    }
+
+    function nodeLabel_Off() {
+        svg.selectAll(".node text").remove()
+    }
+
+    function edgeLabel_On() {
+        edgelabels.append('textPath')
+            .attr('xlink:href', function (d, i) {return '#edgepath' + i})
+            .style("text-anchor", "middle")
+            .style("pointer-events", "none")
+            .attr("startOffset", "50%")
+            .text(function (d) {
+                return (d.tipo=='filial'?'Filial':d.qualificacao)            
+            });
+    }
+
+    function edgeLabel_Off() {
+        svg.selectAll(".edgelabel textPath").remove()
+    }
+
+    function ticked() {
+        link
+            .attr("x1", function (d) {return d.source.x;})
+            .attr("y1", function (d) {return d.source.y;})
+            .attr("x2", function (d) {return d.target.x;})
+            .attr("y2", function (d) {return d.target.y;});
+
+        node
+            .attr("transform", function (d) {return "translate(" + d.x + ", " + d.y + ")";});
+
+        edgepaths.attr('d', function (d) {
+            return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
+        });
+
+        edgelabels.attr('transform', function (d) {
+            if (d.target.x < d.source.x) {
+                var bbox = this.getBBox();
+
+                rx = bbox.x + bbox.width / 2;
+                ry = bbox.y + bbox.height / 2;
+                return 'rotate(180 ' + rx + ' ' + ry + ')';
+            }
+            else {
+                return 'rotate(0)';
+            }
+        });
+
+    }
+
+    function dragstarted(d) {
+        if (!d3.event.active) simulation.alphaTarget(0.3).restart()
+        d.fx = d.x;
+        d.fy = d.y;
+    }
+
+    function dragged(d) {
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+    }
+
+    /**
+     * Liga tooltip com informações sobre node. Adaptado de:
+     *     https://bl.ocks.org/gcalmettes/95e3553da26ec90fd0a2890a678f3f69
+     * @param {Data} d Dado associado ao evento de mouse over.
+     */
+    function tooltipDetalhe_On(d) {
+      var gX;
+
+      if (d.x < window.visualViewport.width - 420) {
+          gX = window.visualViewport.width - 410;
+      } else {
+          gX = 10;
+      }
+
+      let gY = window.visualViewport.height - 250;
+
+      tooltip.transition()
+        .delay(200)
+        .duration(200)
+        .style("opacity", 0.85);
+
+      if (d.tipo_pessoa == 1) {
+        var tip_html;
+        tip_html = "<strong>CNPJ:</strong> " + d.cnpj + "<br/>" +
+                 "<strong>R.Social:</strong> " + d.razao_social + "<br/>" +
+                 "<strong>Nome Fantasia:</strong> " + d.nome_fantasia + "<br/>" +
+                 "<strong>Matriz/Filial:</strong> " + mapMatrizFilial[d.matriz_filial] + "<br/>" +
+                 "<strong>Situação:</strong> " + mapSituacao[d.situacao] + "<br/>" +
+                 "<strong>Data da Situação:</strong> " + converteData(d.data_situacao) + "<br/>" +
+                 "<strong>Início da Atividade em:</strong> " + converteData(d.data_inicio_ativ) + "<br/>" +
+                 "<strong>CNAE Principal:</strong> " + d.cnae_fiscal + "<br/>" +
+                 "<strong>UF:</strong> " + d.uf + "<br/>" +
+                 "<strong>Município:</strong> " + d.municipio + "<br/>";
+
+        if (d.sit_especial != "") {
+            tip_html += "<strong>Sit. Especial:</strong> " + d.sit_especial + "<br/>" +
+                       "<strong>Data da Sit. Especial:</strong> " + converteData(d.data_sit_especial) + "<br/>";
+        }
+
+        tooltip.html(tip_html);
+      } else {
+        tooltip.html("<strong>CPF:</strong> " + d.cpf + "<br/>" +
+                     "<strong>Nome:</strong> " + d.nome + "<br/>" 
+        );
+      }
+
+      tooltip
+        .style("left", gX + "px")
+        .style("top", gY + "px");
+    }
+
+    /**
+     * Desliga tooltip com informações sobre node. Adaptado de:
+     *     https://bl.ocks.org/gcalmettes/95e3553da26ec90fd0a2890a678f3f69
+     * @param {Data} d Dado associado ao evento de mouse over.
+     */
+    function tooltipDetalhe_Off(d) {
+      tooltip.transition()
+        .delay(1000)
+        .duration(200)
+        .style("opacity", 0);
+}
+
+    var grafo = JSON.parse(document.getElementById('grafo').innerHTML);
+    update(grafo.links, grafo.nodes);
+
+    nodeLabel_OnOff();
+</script>
+
+</body>
+</html>
