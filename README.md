@@ -212,7 +212,7 @@ E dessa forma você pode também usar o grafo gerado (atributo "G" da classe) pa
 
 ##### Configurando a aplicação:
 
-* Abra o arquivo `docker-compose.yml` e configure as váriaveis de ambiente;
+* Faça uma copia do arquivo `docker-compose.override.yml.dist` com o nome `docker-compose.override.yml` e configure as váriaveis de ambiente;
 
         environment:
           INPUT_PATH: data/DADOS_ABERTOS_CNPJ.zip
