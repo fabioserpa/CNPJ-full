@@ -1,0 +1,55 @@
+version: '3.7'
+
+services:
+  elasticsearch:
+    container_name: elasticsearch
+    hostname: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.2
+    environment:
+      - cluster.name=es-cluster
+      - node.name=es-node-1
+      - path.data=/usr/share/elasticsearch/data
+      - http.port=9200
+      - http.host=0.0.0.0
+      - transport.host=127.0.0.1
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xmx2G -Xms2G -Duser.timezone=GMT-3"
+    networks:
+      - elk_stack
+    ports:
+      - 9200:9200
+
+  kibana:
+    container_name: kibana
+    hostname: kibana
+    image: docker.elastic.co/kibana/kibana:7.5.2
+    environment:
+    - server.port=127.0.0.1:5601
+    - elasticsearch.url="http://elasticsearch:9200"
+    - server.name="kibana"
+    ports:
+    - 5601:5601
+    networks:
+      - elk_stack
+    depends_on:
+      - elasticsearch
+
+  logstash:
+    build:
+      context: .
+      dockerfile: docker/logstash/Dockerfile
+    volumes:
+      - ./app/database:/usr/share/logstash/logread
+    ports:
+      - 5000:5000
+      - 9600:9600
+    networks:
+      - elk_stack
+    depends_on:
+      - elasticsearch
+    environment:
+      LS_JAVA_OPTS: "-Xmx2G -Xms2G -Duser.timezone=GMT-3"
+
+networks:
+  elk_stack:
+    driver: bridge
