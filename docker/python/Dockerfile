@@ -11,7 +11,7 @@ COPY app/requirements.txt requirements.txt
 
 RUN pip3 install -r requirements.txt
 
-COPY docker/entrypoint.sh /usr/local/bin
+COPY docker/python/entrypoint.sh /usr/local/bin
 RUN chmod -R 777 /usr/local/bin/entrypoint.sh
 
 ENTRYPOINT ["entrypoint.sh"]
