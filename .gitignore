@@ -8,3 +8,5 @@ app/data/
 app/database/
 !app/database/.gitkeep
 
+docker-compose.override.yml
+
