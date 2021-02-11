@@ -1,9 +1,9 @@
 # -*- encoding: utf-8 -*-
-import os
-import glob
-import sys
 import csv
 import datetime
+import glob
+import os
+import sys
 
 import pandas as pd
 
@@ -76,85 +76,85 @@ CNA_ORDEM = 'cnae_ordem'
 # FIM DAS CONSTANTES PARA DEFINICAO DE NOMENCLATURA
 
 REGISTROS_TIPOS = {
-    '1':EMPRESAS,
-    '2':SOCIOS,
-    '6':CNAES_SECUNDARIOS
+    '1': EMPRESAS,
+    '2': SOCIOS,
+    '6': CNAES_SECUNDARIOS
 }
 
 EMPRESAS_COLUNAS = [
-    (EMP_CNPJ,(3, 17)), 
-    (EMP_MATRIZ_FILIAL,(17,18)),
-    (EMP_RAZAO_SOCIAL,(18,168)),
-    (EMP_NOME_FANTASIA,(168,223)),
-    (EMP_SITUACAO,(223,225)),
-    (EMP_DATA_SITUACAO,(225,233)),
-    (EMP_MOTIVO_SITUACAO,(233,235)),
-    (EMP_NM_CIDADE_EXTERIOR,(235,290)),
-    (EMP_COD_PAIS,(290,293)),
-    (EMP_NOME_PAIS,(293,363)),
-    (EMP_COD_NAT_JURIDICA,(363,367)),
-    (EMP_DATA_INICIO_ATIV,(367,375)),
-    (EMP_CNAE_FISCAL,(375,382)),
-    (EMP_TIPO_LOGRADOURO,(382,402)),
-    (EMP_LOGRADOURO,(402,462)),
-    (EMP_NUMERO,(462,468)),
-    (EMP_COMPLEMENTO,(468,624)),
-    (EMP_BAIRRO,(624,674)),
-    (EMP_CEP,(674,682)),
-    (EMP_UF,(682,684)),
-    (EMP_COD_MUNICIPIO,(684,688)),
-    (EMP_MUNICIPIO,(688,738)),
-    (EMP_DDD_1,(738,742)),
-    (EMP_TELEFONE_1,(742,750)),
-    (EMP_DDD_2,(750,754)),
-    (EMP_TELEFONE_2,(754,762)),
-    (EMP_DDD_FAX,(762,766)),
-    (EMP_NUM_FAX,(766,774)),
-    (EMP_EMAIL,(774,889)),
-    (EMP_QUALIF_RESP,(889,891)),
-    (EMP_CAPITAL_SOCIAL,(891,905)),
-    (EMP_PORTE,(905,907)),
-    (EMP_OPC_SIMPLES,(907,908)),
-    (EMP_DATA_OPC_SIMPLES,(908,916)),
-    (EMP_DATA_EXC_SIMPLES,(916,924)),
-    (EMP_OPC_MEI,(924,925)),
-    (EMP_SIT_ESPECIAL,(925,948)),
-    (EMP_DATA_SIT_ESPECIAL,(948,956))
+    (EMP_CNPJ, (3, 17)),
+    (EMP_MATRIZ_FILIAL, (17, 18)),
+    (EMP_RAZAO_SOCIAL, (18, 168)),
+    (EMP_NOME_FANTASIA, (168, 223)),
+    (EMP_SITUACAO, (223, 225)),
+    (EMP_DATA_SITUACAO, (225, 233)),
+    (EMP_MOTIVO_SITUACAO, (233, 235)),
+    (EMP_NM_CIDADE_EXTERIOR, (235, 290)),
+    (EMP_COD_PAIS, (290, 293)),
+    (EMP_NOME_PAIS, (293, 363)),
+    (EMP_COD_NAT_JURIDICA, (363, 367)),
+    (EMP_DATA_INICIO_ATIV, (367, 375)),
+    (EMP_CNAE_FISCAL, (375, 382)),
+    (EMP_TIPO_LOGRADOURO, (382, 402)),
+    (EMP_LOGRADOURO, (402, 462)),
+    (EMP_NUMERO, (462, 468)),
+    (EMP_COMPLEMENTO, (468, 624)),
+    (EMP_BAIRRO, (624, 674)),
+    (EMP_CEP, (674, 682)),
+    (EMP_UF, (682, 684)),
+    (EMP_COD_MUNICIPIO, (684, 688)),
+    (EMP_MUNICIPIO, (688, 738)),
+    (EMP_DDD_1, (738, 742)),
+    (EMP_TELEFONE_1, (742, 750)),
+    (EMP_DDD_2, (750, 754)),
+    (EMP_TELEFONE_2, (754, 762)),
+    (EMP_DDD_FAX, (762, 766)),
+    (EMP_NUM_FAX, (766, 774)),
+    (EMP_EMAIL, (774, 889)),
+    (EMP_QUALIF_RESP, (889, 891)),
+    (EMP_CAPITAL_SOCIAL, (891, 905)),
+    (EMP_PORTE, (905, 907)),
+    (EMP_OPC_SIMPLES, (907, 908)),
+    (EMP_DATA_OPC_SIMPLES, (908, 916)),
+    (EMP_DATA_EXC_SIMPLES, (916, 924)),
+    (EMP_OPC_MEI, (924, 925)),
+    (EMP_SIT_ESPECIAL, (925, 948)),
+    (EMP_DATA_SIT_ESPECIAL, (948, 956))
 ]
 
-EMPRESAS_DTYPE = {EMP_CAPITAL_SOCIAL:float}
+EMPRESAS_DTYPE = {EMP_CAPITAL_SOCIAL: float}
 
 SOCIOS_COLUNAS = [
-    (SOC_CNPJ,(3, 17)), 
-    (SOC_TIPO_SOCIO,(17,18)),
-    (SOC_NOME_SOCIO,(18,168)),
-    (SOC_CNPJ_CPF_SOCIO,(168,182)),
-    (SOC_COD_QUALIFICACAO,(182,184)),
-    (SOC_PERC_CAPITAL,(184,189)),
-    (SOC_DATA_ENTRADA,(189,197)),
-    (SOC_COD_PAIS_EXT,(197,200)),
-    (SOC_NOME_PAIS_EXT,(200,270)),
-    (SOC_CPF_REPRES,(270,281)),
-    (SOC_NOME_REPRES,(281,341)),
-    (SOC_COD_QUALIF_REPRES,(341,343))
+    (SOC_CNPJ, (3, 17)),
+    (SOC_TIPO_SOCIO, (17, 18)),
+    (SOC_NOME_SOCIO, (18, 168)),
+    (SOC_CNPJ_CPF_SOCIO, (168, 182)),
+    (SOC_COD_QUALIFICACAO, (182, 184)),
+    (SOC_PERC_CAPITAL, (184, 189)),
+    (SOC_DATA_ENTRADA, (189, 197)),
+    (SOC_COD_PAIS_EXT, (197, 200)),
+    (SOC_NOME_PAIS_EXT, (200, 270)),
+    (SOC_CPF_REPRES, (270, 281)),
+    (SOC_NOME_REPRES, (281, 341)),
+    (SOC_COD_QUALIF_REPRES, (341, 343))
 ]
 
-SOCIOS_DTYPE = {SOC_PERC_CAPITAL:float}
+SOCIOS_DTYPE = {SOC_PERC_CAPITAL: float}
 
 CNAES_COLNOMES = [CNA_CNPJ] + [num for num in range(99)]
-CNAES_COLSPECS = [(3,17)] + [(num*7+17,num*7+24) for num in range(99)]
+CNAES_COLSPECS = [(3, 17)] + [(num * 7 + 17, num * 7 + 24) for num in range(99)]
 
 HEADER_COLUNAS = [
-    ('Nome do arquivo',(17,28)),
-    ('Data de gravacao',(28,36)),
-    ('Numero da remessa',(36,44))
+    ('Nome do arquivo', (17, 28)),
+    ('Data de gravacao', (28, 36)),
+    ('Numero da remessa', (36, 44))
 ]
 
 TRAILLER_COLUNAS = [
-    ('Total de registros de empresas',(17,26)),
-    ('Total de registros de socios',(26,35)),
-    ('Total de registros de CNAEs secundarios',(35,44)),
-    ('Total de registros incluindo header e trailler',(44,55))
+    ('Total de registros de empresas', (17, 26)),
+    ('Total de registros de socios', (26, 35)),
+    ('Total de registros de CNAEs secundarios', (35, 44)),
+    ('Total de registros incluindo header e trailler', (44, 55))
 ]
 
 # (<nome_do_indice>,<tabela>,<coluna>)
@@ -169,9 +169,10 @@ INDICES = [
 
 PREFIXO_INDICE = 'ix_'
 
-CHUNKSIZE=200000
+CHUNKSIZE = 200000
 
 NOME_ARQUIVO_SQLITE = 'CNPJ_full.db'
+
 
 def cnpj_full(input_list, tipo_output, output_path):
     total_empresas = 0
@@ -181,12 +182,21 @@ def cnpj_full(input_list, tipo_output, output_path):
     total_cnaes = 0
     controle_cnaes = 0
 
-    if not os.path.exists(output_path):
+    if not os.path.exists(output_path) and tipo_output != 'mysql':
         os.makedirs(output_path)
 
     if tipo_output == 'sqlite':
         import sqlite3
-        conBD = sqlite3.connect(os.path.join(output_path,NOME_ARQUIVO_SQLITE))
+        conBD = sqlite3.connect(os.path.join(output_path, NOME_ARQUIVO_SQLITE))
+    if tipo_output == 'mysql':
+        from sqlalchemy import create_engine
+        import config
+        engine = create_engine("mysql+pymysql://{user}:{pw}@{ip}:{port}/{db}"
+                               .format(user=config.USER_MYSQL,
+                                       pw=config.PASSWORD_MYSQL,
+                                       ip=config.IP_MYSQL,
+                                       port=config.PORT_MYSQL,
+                                       db=config.DATABASE_MYSQL))
 
     header_colnomes = list(list(zip(*HEADER_COLUNAS))[0])
     empresas_colnomes = list(list(zip(*EMPRESAS_COLUNAS))[0])
@@ -202,18 +212,18 @@ def cnpj_full(input_list, tipo_output, output_path):
     for i_arq, arquivo in enumerate(input_list):
         print('Processando arquivo: {}'.format(arquivo))
 
-        dados = read_cfwf(arquivo, 
-                          type_width=1, 
-                          colspecs= {'0':header_colspecs,
-                                     '1':empresas_colspecs,
-                                     '2':socios_colspecs,
-                                     '6':CNAES_COLSPECS,
-                                     '9':trailler_colspecs},
-                          names={'0':header_colnomes,
-                                 '1':empresas_colnomes, 
-                                 '2':socios_colnomes,
-                                 '6':CNAES_COLNOMES,
-                                 '9':trailler_colnomes},
+        dados = read_cfwf(arquivo,
+                          type_width=1,
+                          colspecs={'0': header_colspecs,
+                                    '1': empresas_colspecs,
+                                    '2': socios_colspecs,
+                                    '6': CNAES_COLSPECS,
+                                    '9': trailler_colspecs},
+                          names={'0': header_colnomes,
+                                 '1': empresas_colnomes,
+                                 '2': socios_colnomes,
+                                 '6': CNAES_COLNOMES,
+                                 '9': trailler_colnomes},
                           dtype={'1': EMPRESAS_DTYPE,
                                  '2': SOCIOS_DTYPE},
                           chunksize=CHUNKSIZE,
@@ -221,58 +231,58 @@ def cnpj_full(input_list, tipo_output, output_path):
 
         # Itera sobre blocos (chunks) do arquivo
         for i_bloco, bloco in enumerate(dados):
-            print('Bloco {}: até linha {}. [Emps:{}|Socios:{}|CNAEs:{}]'.format(i_bloco+1,
-                                                               (i_bloco+1)*CHUNKSIZE,
-                                                               total_empresas, 
-                                                               total_socios, 
-                                                               total_cnaes), 
+            print('Bloco {}: até linha {}. [Emps:{}|Socios:{}|CNAEs:{}]'.format(i_bloco + 1,
+                                                                                (i_bloco + 1) * CHUNKSIZE,
+                                                                                total_empresas,
+                                                                                total_socios,
+                                                                                total_cnaes),
                   end='\r')
 
             for tipo_registro, df in bloco.items():
 
-                if tipo_registro == '1': # empresas
+                if tipo_registro == '1':  # empresas
                     total_empresas += len(df)
 
                     # Troca datas zeradas por vazio
                     df[EMP_DATA_OPC_SIMPLES] = (df[EMP_DATA_OPC_SIMPLES]
-                            .where(df[EMP_DATA_OPC_SIMPLES] != '00000000',''))
+                                                .where(df[EMP_DATA_OPC_SIMPLES] != '00000000', ''))
                     df[EMP_DATA_EXC_SIMPLES] = (df[EMP_DATA_EXC_SIMPLES]
-                            .where(df[EMP_DATA_EXC_SIMPLES] != '00000000',''))
+                                                .where(df[EMP_DATA_EXC_SIMPLES] != '00000000', ''))
                     df[EMP_DATA_SIT_ESPECIAL] = (df[EMP_DATA_SIT_ESPECIAL]
-                            .where(df[EMP_DATA_SIT_ESPECIAL] != '00000000',''))
+                                                 .where(df[EMP_DATA_SIT_ESPECIAL] != '00000000', ''))
 
-                elif tipo_registro == '2': # socios
+                elif tipo_registro == '2':  # socios
                     total_socios += len(df)
 
                     # Troca cpf invalido por vazio
                     df[SOC_CPF_REPRES] = (df[SOC_CPF_REPRES]
-                            .where(df[SOC_CPF_REPRES] != '***000000**',''))
+                                          .where(df[SOC_CPF_REPRES] != '***000000**', ''))
                     df[SOC_NOME_REPRES] = (df[SOC_NOME_REPRES]
-                            .where(df[SOC_NOME_REPRES] != 'CPF INVALIDO',''))  
+                                           .where(df[SOC_NOME_REPRES] != 'CPF INVALIDO', ''))
 
                     # Se socio for tipo 1 (cnpj), deixa campo intacto, do contrario, 
                     # fica apenas com os ultimos 11 digitos
                     df[SOC_CNPJ_CPF_SOCIO] = (df[SOC_CNPJ_CPF_SOCIO]
-                            .where(df[SOC_TIPO_SOCIO] == '1',
-                                   df[SOC_CNPJ_CPF_SOCIO].str[-11:]))
+                                              .where(df[SOC_TIPO_SOCIO] == '1',
+                                                     df[SOC_CNPJ_CPF_SOCIO].str[-11:]))
 
-                elif tipo_registro == '6': # cnaes_secundarios       
+                elif tipo_registro == '6':  # cnaes_secundarios
                     total_cnaes += len(df)
 
                     # Verticaliza tabela de associacao de cnaes secundarios,
                     # mantendo apenas os validos (diferentes de 0000000)
-                    df = pd.melt(df, 
-                                 id_vars=[CNA_CNPJ], 
+                    df = pd.melt(df,
+                                 id_vars=[CNA_CNPJ],
                                  value_vars=range(99),
-                                 var_name=CNA_ORDEM, 
+                                 var_name=CNA_ORDEM,
                                  value_name=CNA_CNAE)
 
                     df = df[df[CNA_CNAE] != '0000000']
 
-                elif tipo_registro == '0': # header
+                elif tipo_registro == '0':  # header
                     print('\nINFORMACOES DO HEADER:')
 
-                    header = df.iloc[0,:]
+                    header = df.iloc[0, :]
 
                     for k, v in header.items():
                         print('{}: {}'.format(k, v))
@@ -280,10 +290,10 @@ def cnpj_full(input_list, tipo_output, output_path):
                     # Para evitar que tente armazenar dados de header
                     continue
 
-                elif tipo_registro == '9': # trailler
+                elif tipo_registro == '9':  # trailler
                     print('\nINFORMACOES DE CONTROLE:')
 
-                    trailler = df.iloc[0,:]
+                    trailler = df.iloc[0, :]
 
                     controle_empresas = int(trailler['Total de registros de empresas'])
                     controle_socios = int(trailler['Total de registros de socios'])
@@ -293,7 +303,7 @@ def cnpj_full(input_list, tipo_output, output_path):
                     print('Total de registros de socios: {}'.format(controle_socios))
                     print('Total de registros de CNAEs secundarios: {}'.format(controle_cnaes))
                     print('Total de registros incluindo header e trailler: {}'.format(
-                            int(trailler['Total de registros incluindo header e trailler'])))
+                        int(trailler['Total de registros incluindo header e trailler'])))
 
                     # Para evitar que tente armazenar dados de trailler
                     continue
@@ -301,26 +311,25 @@ def cnpj_full(input_list, tipo_output, output_path):
                 if tipo_output == 'csv':
                     if (i_arq + i_bloco) > 0:
                         replace_append = 'a'
-                        header=False
+                        header = False
                     else:
                         replace_append = 'w'
-                        header=True
+                        header = True
 
                     nome_arquivo_csv = REGISTROS_TIPOS[tipo_registro] + '.csv'
-                    df.to_csv(os.path.join(output_path,nome_arquivo_csv), 
+                    df.to_csv(os.path.join(output_path, nome_arquivo_csv),
                               header=header,
                               mode=replace_append,
                               index=False,
                               quoting=csv.QUOTE_NONNUMERIC)
 
-                elif tipo_output == 'sqlite':
-                    replace_append = 'append' if (i_arq + i_bloco) > 0 else 'replace' 
-                        
-                    df.to_sql(REGISTROS_TIPOS[tipo_registro], 
-                              con=conBD, 
-                              if_exists=replace_append, 
-                              index=False)
+                elif tipo_output in ['sqlite', 'mysql']:
+                    replace_append = 'append' if (i_arq + i_bloco) > 0 else 'replace'
 
+                    df.to_sql(REGISTROS_TIPOS[tipo_registro],
+                              con=conBD if tipo_output == 'sqlite' else engine,
+                              if_exists=replace_append,
+                              index=False)
 
     if tipo_output == 'sqlite':
         conBD.close()
@@ -351,9 +360,9 @@ def cnpj_full(input_list, tipo_output, output_path):
         print('!INCONSISTENTE!')
         inconsistente = True
 
-
     if inconsistente:
-        print(u'Atencao! Foi detectada inconsistencia entre as quantidades lidas e as informacoes de controle do arquivo.')
+        print(
+            u'Atencao! Foi detectada inconsistencia entre as quantidades lidas e as informacoes de controle do arquivo.')
 
     if tipo_output == 'csv':
         print(u'Arquivos CSV gerados na pasta {}.'.format(output_path))
@@ -362,13 +371,18 @@ def cnpj_full(input_list, tipo_output, output_path):
         print(u'''
 Arquivo SQLITE gerado: {}
 OBS: Uso de índices altamente recomendado!
-              '''.format(os.path.join(output_path,NOME_ARQUIVO_SQLITE)))
+              '''.format(os.path.join(output_path, NOME_ARQUIVO_SQLITE)))
+    elif tipo_output == 'mysql':
+        print(u'''
+    Banco Mysql populado
+    OBS: Uso de índices altamente recomendado!
+                  ''')
 
 
 def cnpj_index(output_path):
-    import sqlite3    
+    import sqlite3
 
-    conBD = sqlite3.connect(os.path.join(output_path,NOME_ARQUIVO_SQLITE))
+    conBD = sqlite3.connect(os.path.join(output_path, NOME_ARQUIVO_SQLITE))
 
     print(u'''
 Criando índices...
@@ -405,7 +419,6 @@ Exemplos: python cnpj.py "data/F.K032001K.D81106D" sqlite "output"
 
 
 def main():
-
     num_argv = len(sys.argv)
     if num_argv < 4:
         help()
@@ -418,17 +431,18 @@ def main():
         gera_index = True
         input_list = [input_path]
 
-        if num_argv > 4:
-            for opcional in sys.argv[4:num_argv]:
+        if num_argv > 4 or tipo_output == 'mysql':
+            inicio = num_argv if num_argv > 4 else 3
+            for opcional in sys.argv[inicio:num_argv]:
                 if (opcional == '--noindex'):
                     gera_index = False
 
                 elif (opcional == '--dir'):
-                    input_list = glob.glob(os.path.join(input_path,'*.zip'))
+                    input_list = glob.glob(os.path.join(input_path, '*.zip'))
 
                     if not input_list:
                         # caso nao ache zip, procura arquivos descompactados.
-                        input_list = glob.glob(os.path.join(input_path,'*.L*'))
+                        input_list = glob.glob(os.path.join(input_path, '*.L*'))
 
                     if not input_list:
                         # caso nem assim ache, indica erro.
@@ -442,10 +456,10 @@ def main():
                     help()
                     sys.exit(-1)
 
-        if tipo_output not in ['csv','sqlite']:
+        if tipo_output not in ['csv', 'sqlite', 'mysql']:
             print('''
 ERRO: tipo de output inválido. 
-Escolha um dos seguintes tipos de output: csv ou sqlite.
+Escolha um dos seguintes tipos de output: csv, sqlite ou mysql.
             ''')
             help()
 
@@ -458,6 +472,7 @@ Escolha um dos seguintes tipos de output: csv ou sqlite.
                 cnpj_index(output_path)
 
             print('Processamento concluido em {}'.format(datetime.datetime.now()))
+
 
 if __name__ == "__main__":
     main()

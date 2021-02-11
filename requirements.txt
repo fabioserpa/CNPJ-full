@@ -2,3 +2,5 @@ pandas
 numpy
 numexpr
 python-dotenv
+sqlalchemy
+pymysql
