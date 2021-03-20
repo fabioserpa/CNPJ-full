@@ -4,17 +4,23 @@ Possibilita também fazer consultas de empresas ou sócios e gravar resultados e
 
 ![Grafo](img/grafo.png?raw=true "Grafo")
 
-**ATENÇÃO**:
+**ATENÇÃO!**
 
-A **forma recomendada** de fazer a carga atualmente é: salvar os múltiplos arquivos zip em uma pasta dedicada e executar:
+A partir de março de 2021, a Receita Federal mudou completamente a forma de disponibilizar os dados públicos do CNPJ. O script de carga deste repositório ainda não foi atualizado para refletir estas alterações, e portanto não funcionará para os novos arquivos disponibilizados a partir desta data.
+
+A **boa notícia** é que agora os arquivos já estão sendo disponibilizados pela RF em formato CSV, o que, dependendo do seu caso, pode até dispensar o uso deste script.
+
+Os scripts deste repositório no entanto ainda assim serão atualizados para manter funcional a conversão dos dados para formato SQLite, assim como os scripts de consulta.
+
+# Conversão para CSV ou SQLITE
+
+A forma recomendada de fazer a carga atualmente é: salvar os múltiplos arquivos zip em uma pasta dedicada e executar:
 
 `python3 cnpj.py PASTA_COM_ZIPS sqlite PASTA_DE_SAIDA --dir`
 
 ou
 
 `python3 cnpj.py PASTA_COM_ZIPS csv PASTA_DE_SAIDA --dir`
-
-# Conversão para CSV ou SQLITE
 
 ## Configurações prévias
 Para executar o script, é necessário que seu sistema contenha essas instalações:
