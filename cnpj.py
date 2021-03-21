@@ -321,6 +321,17 @@ def cnpj_full(input_list, tipo_output, output_path):
                               if_exists=replace_append, 
                               index=False)
 
+                elif tipo_output == 'json':
+                    if (i_arq + i_bloco) > 0:
+                        replace_append = 'a'
+                        header=False
+                    else:
+                        replace_append = 'w'
+                        header=True
+
+                    nome_arquivo_json = REGISTROS_TIPOS[tipo_registro] + '.json'
+                    df.to_json(os.path.join(output_path,nome_arquivo_json), orient='records')
+
 
     if tipo_output == 'sqlite':
         conBD.close()
@@ -364,6 +375,9 @@ Arquivo SQLITE gerado: {}
 OBS: Uso de índices altamente recomendado!
               '''.format(os.path.join(output_path,NOME_ARQUIVO_SQLITE)))
 
+    elif tipo_output == 'json':
+        print(u'Arquivos JSON gerados na pasta {}.'.format(output_path))
+
 
 def cnpj_index(output_path):
     import sqlite3    
@@ -392,7 +406,7 @@ Essa operaçao pode levar vários minutos.
 
 def help():
     print('''
-Uso: python cnpj.py <path_input> <output:csv|sqlite> <path_output> [--dir] [--noindex]
+Uso: python cnpj.py <path_input> <output:csv|sqlite|json> <path_output> [--dir] [--noindex]
 Argumentos opcionais:
  [--dir]: Indica que o <path_input> e uma pasta e pode conter varios ZIPs.
  [--noindex]: NAO gera indices automaticamente no sqlite ao final da carga.
@@ -400,6 +414,7 @@ Argumentos opcionais:
 Exemplos: python cnpj.py "data/F.K032001K.D81106D" sqlite "output"
           python cnpj.py "data" sqlite "output" --dir
           python cnpj.py "data" sqlite "output" --dir --noindex
+          python cnpj.py "data" json "output" --dir
           python cnpj.py "data" csv "output" --dir
     ''')
 
@@ -442,7 +457,7 @@ def main():
                     help()
                     sys.exit(-1)
 
-        if tipo_output not in ['csv','sqlite']:
+        if tipo_output not in ['csv','sqlite','json']:
             print('''
 ERRO: tipo de output inválido. 
 Escolha um dos seguintes tipos de output: csv ou sqlite.
